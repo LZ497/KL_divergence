@@ -1,0 +1,308 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{xcolor}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage[a4paper, total={6in, 8in}]{geometry}
+\usepackage[utf8]{inputenc}
+
+\title{Variational Bayes with TensorFlow}
+\author{Massive Data Institute}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+
+\textbf{Unbounded:}
+
+Is it implemented in Tensorflow?
+
+\begin{center}
+\begin{tabular}{ c | c c c }
+ & Normal & Cauchy & Laplace \\
+ \hline
+ Normal & Y & N & N \\ 
+ Cauchy & N & Y & N \\  
+ Laplace & N & N & Y    
+\end{tabular}
+\end{center}
+
+Is the Derivation on Google?
+
+\begin{center}
+\begin{tabular}{ c | c c c }
+ & Normal & Cauchy & Laplace \\
+ \hline
+ Normal & Y & Y & N \\ 
+ Cauchy & Y & Y & N \\  
+ Laplace & N & N & Y    
+\end{tabular}
+\end{center}
+
+Links:
+\begin{itemize}
+    \item Normal-Cauchy: https://math.stackexchange.com/questions/1098852/kullback-leibler-divergence-between-standard-gaussian-distribution-and-standard
+\end{itemize}
+
+
+\textbf{Half Bounded:}
+
+Is it implemented in Tensorflow?
+
+\begin{center}
+\begin{tabular}{ c | c c c }
+ & HalfNormal & Gamma & Lognormal \\
+ \hline
+ HalfNormal & Y & N & N \\ 
+ Gamma & N & Y & N \\  
+ Lognormal & N & N & Y    
+\end{tabular}
+\end{center}
+
+Is the Derivation on Google?
+
+\begin{center}
+\begin{tabular}{ c | c c c }
+ & HalfNormal & Gamma & LogNormal \\
+ \hline
+ HalfNormal & Y & N & N \\ 
+ Gamma & N & Y & Y \\  
+ LogNormal & N & Y & Y   
+\end{tabular}
+\end{center}
+
+Links:
+\begin{itemize}
+    \item Gamma-Lognormal: https://stats.stackexchange.com/questions/133886/kl-divergence-between-a-gamma-distribution-and-a-lognormal-distribution
+\end{itemize}
+
+\textbf{Bounded:}
+
+Is it implemented in Tensorflow?
+
+\begin{center}
+\begin{tabular}{ c | c c c }
+ & Beta & LogitNormal & Uniform \\
+ \hline
+ Beta & Y & N & N \\ 
+ LogitNormal & N & Y & N \\  
+ Uniform & N & N & Y    
+\end{tabular}
+\end{center}
+
+Is the Derivation on Google?
+
+\begin{center}
+\begin{tabular}{ c | c c c }
+ & Beta & logitnormal & Uniform \\
+ \hline
+ Beta & Y & N & N \\ 
+ logitnormal & N & Y & N \\  
+ Uniform & N & N & Y    
+\end{tabular}
+\end{center}
+
+
+
+\section{Unbounded}
+
+\subsection{Normal Reference}
+
+\noindent \textbf{Entropy:}
+
+$$ \begin{aligned} \text { Entropy }&=-\mathbb{E}_{Q}\left[\log f_{q}\right] \\ &=-\mathbb{E}_{Q}\left[log(\frac{1}{\sigma_{q} \sqrt{2 \pi}} e^{-\frac{(x-\mu_{q})^{2}}{2 \sigma_{q}^{2}}})\right] \\ &=-\mathbb{E}_{Q}\left[-\frac{1}{2} \log \left(2 \pi \sigma_{q}^{2}\right)-\frac{\left(x-\mu_{q}\right)^{2}}{2 \sigma_{q}^{2}}\right] \\ &=\frac{\log \left(2 \pi \sigma_{p}^{2}\right)}{2}+\frac{\mathbb{E}_{Q}\left[(x-\mu_{q})^2 \right]}{2 \sigma^2_{q}}\\ &=\frac{\log \left(2 \pi \sigma_{p}^{2}\right)}{2}+\frac{\mathbb{E}_{Q}\left[x^2 \right]-\mu_{q}^{2}}{2\sigma^2_{p}}\\ &=\frac{\log \left(2 \pi \sigma_{p}^{2}\right)}{2}+\frac{\sigma_{q}^{2}}{2\sigma^2_{p}}\\ &=\frac{\log \left(2 \pi \sigma_{q}^{2}\right)+1}{2} \end{aligned} $$
+
+\subsubsection{Normal Target}
+
+\noindent \textbf{Existing Work:}
+
+\noindent \textbf{Cross-Entropy:}
+
+$$ \begin{aligned} \text { CrossEntropy }&=-\mathbb{E}_{Q}\left[\log f_{p}\right] \\ &=-\mathbb{E}_{Q}\left[log(\frac{1}{\sigma_{p} \sqrt{2 \pi}} e^{-\frac{(x-\mu_{p})^{2}}{2 \sigma_{p}^{2}}})\right] \\ &= -\mathbb{E}_{Q}\left[-\frac{1}{2} \log \left(2 \pi \sigma_{p}^{2}\right)-\frac{\left(x-\mu_{p}\right)^{2}}{2 \sigma_{p}^{2}}\right] \\ &=\frac{\log \left(2 \pi \sigma_{p}^{2}\right)}{2}+\frac{\mathbb{E}_{Q}\left[(x-\mu_{p})^2 \right]}{2 \sigma^2_{p}}\\ &=\frac{\log \left(2 \pi \sigma_{p}^{2}\right)}{2}+\frac{\mathbb{E}_{Q}\left[x^2 \right]+\mu_{q}^{2}-2\mu_{p}\mu_{q} }{2\sigma^2_{p}}\\ &=\frac{\log \left(2 \pi \sigma_{p}^{2}\right)}{2}+\frac{\sigma_{q}^{2}+\mu_{p}^{2}+\mu_{q}^{2}-2\mu_{p}\mu_{q} }{2\sigma^2_{p}}\\ &=\frac{\log \left(2 \pi \sigma_{p}^{2}\right)}{2}+\frac{\left(\mu_{q}-\mu_{p}\right)^{2}+\sigma_{q}^{2}}{2 \sigma^2_{p}} \end{aligned} $$
+
+
+\noindent \textbf{KL:}
+
+$$ \begin{aligned} \mathrm{KL}\left(\mathrm{N}\left(\mu_{q}, \sigma_{q}^{2}\right) \| \mathrm{N}\left(\mu_{p}, \sigma_{p}^{2}\right)\right)&=-\text { Entropy }+\text { CrossEntropy } \\ &=-\frac{\log \left(2 \pi \sigma_{q}^{2}\right)+1}{2}+ \frac{\log \left(2 \pi \sigma_{p}^{2}\right)}{2}+\frac{\left(\mu_{q}-\mu_{p}\right)^{2}+\sigma_{q}^{2}}{2 \sigma^2_{p}} \\ &=\frac{\left(\mu_{q}-\mu_{p}\right)^{2}+\sigma_{q}^{2}}{2 \sigma^2_{p}} +\frac{\log \left(2 \pi \sigma_{p}^{2}\right)- \log \left(2 \pi \sigma_{q}^{2}\right)-1}{2} \\ &=\frac{\left(\mu_{q}-\mu_{p}\right)^{2}+\sigma_{q}^{2}}{2 \sigma^2_{p}} +\frac{2\log \left(\sigma_{p}-\sigma_{q}\right)-1}{2} \\ &=\frac{\left(\mu_{q}-\mu_{p}\right)^{2}+\sigma_{q}^{2}}{2 \sigma^2_{p}}-\log \sigma_{q}+\log \sigma_{p}-\frac{1}{2} \end{aligned} $$
+
+\subsection{Cauchy Reference}
+
+\noindent \textbf{Entropy:}
+$$ \begin{aligned} \text { Entropy } &=-\int_{-\infty}^{\infty} p_{l_{p}, s_{p}}(x) \log p_{l_{p}, s_{p}}(x)\\
+&=\log (4 \pi s_{p})\end{aligned} $$
+
+\subsubsection{Cauchy Target}
+
+\noindent \textbf{Existing Work:}
+
+\noindent \textbf{Cross-Entropy:}
+$$ \begin{aligned} \text { CrossEntropy }&=-\int_{-\infty}^{\infty} p_{l_{p}, s_{p}}(x) \log q_{l_{q}, s_{q}}(x) \mathrm{d} x\\& =\frac{s}{\pi} \int \frac{1}{s^{2}+x^{2}} \log \left(1+x^{2}\right) \mathrm{d} x+\log \pi+\log s_{q}, \\
+&=\log \pi s_{q}+\frac{s}{\pi} I(1, s) \\
+&=\log \pi \frac{\left(s_{p}+s_{q}\right)^{2}+\left(l_{p}-l_{q}\right)^{2}}{s_{q}}\\
+\end{aligned} $$
+
+\noindent \textbf{KL:}
+
+$$ \begin{aligned}\mathrm{KL}\left(p_{l_{p}, s_{p}}: p_{l_{q}, s_{q}}\right)&=-\text { Entropy }+\text { CrossEntropy } \\&=-\log (4 \pi s_{p})+\log \pi \frac{\left(s_{p}+s_{q}\right)^{2}+\left(l_{p}-l_{q}\right)^{2}}{s_{q}}\\&=\log\frac{\left(s_{p}+s_{q}\right)^{2}+\left(l_{p}-l_{q}\right)^{2}}{4 s_{p} s_{q}}\end{aligned} $$
+
+Links:
+\begin{itemize}
+    \item https://arxiv.org/pdf/1905.10965.pdf
+    \item https://arxiv.org/pdf/1904.10428.pdf
+\end{itemize}
+
+\subsection{Laplace Reference}
+
+\noindent \textbf{Entropy:}
+$$ \begin{aligned} \text { Entropy }&=-\int_{-\infty}^{\infty} p(x) \log p(x) d x\\&=-\int_{-\infty}^{\infty}\frac{1}{2 b_{p}} \exp \left(-\frac{\left|x-\mu_{p}\right|}{b_{p}}\right) \log \frac{1}{2 b_{p}} \exp \left(-\frac{\left|x-\mu_{p}\right|}{b_{p}}\right) d x&\\&=1+\log \left(2 b_{p}\right)
+\end{aligned} $$
+
+\subsubsection{Laplace Target}
+
+\noindent \textbf{Existing Work:}
+
+\noindent \textbf{Cross-Entropy:}
+$$ \begin{aligned} \text { CrossEntropy }
+\quad &=-\int_{-\infty}^{\infty} p(x) \log q(x) d x \\
+\quad &=\int_{-\infty}^{\infty} \frac{\left|x-\mu_{q}\right|}{2 b_{p} b_{q}} \exp \left(-\frac{\left|x-\mu_{p}\right|}{b_{p}}\right) d x+\log \left(2 b_{q}\right)\\&=\frac{b_{p} \exp \left(-\frac{\left|\mu_{p}-\mu_{q}\right|}{b_{p}}\right)+\left|\mu_{p}-\mu_{q}\right|}{b_{q}}+\log \left(2 b_{q}\right)
+\end{aligned}
+ $$
+\noindent \textbf{KL:}
+
+$$ \begin{aligned}\mathrm{KL}\left(\mathrm{Laplace}\left(\mu_{p}, \sigma_{p}^{2}\right) \| \mathrm{Laplace}\left(\mu_{q}, \sigma_{q}^{2}\right)\right)&=-\text { Entropy }+\text{ CrossEntropy }\\&=-1-\log \left(2 b_{p}\right)+\frac{b_{p} \exp \left(-\frac{\left|\mu_{p}-\mu_{q}\right|}{b_{p}}\right)+\left|\mu_{p}-\mu_{q}\right|}{b_{q}}+\log \left(2 b_{q}\right)\\&=\frac{b_{p} \exp \left(-\frac{\left|\mu_{p}-\mu_{q}\right|}{b_{p}}\right)+\left|\mu_{p}-\mu_{q}\right|}{b_{q}}+\log \frac{b_{q}}{b_{p}}-1\\
+\end{aligned}
+$$
+Links:
+\begin{itemize}
+    \item  https://openaccess.thecvf.com/content/CVPR2021/supplemental/Meyer\_An\_Alternative\\\_Probabilistic\_CVPR\_2021\_supplemental.pdf
+\end{itemize}
+\section{Half-Bounded}
+
+
+\subsection{HalfNorm Reference}
+
+\noindent \textbf{Entropy:}
+$$ \begin{aligned} \text { Entropy }&=-\int_{0}^{\infty} f(x) \log f(x) d x\\&=-\int_{0}^{\infty}\frac{\sqrt{2}e^{-\frac{x^{2} }{2\sigma^{2}}}}{\sigma\sqrt{\pi}}\log\frac{\sqrt{2}e^{-\frac{x^{2} }{2\sigma^{2}}}}{\sigma\sqrt{\pi}} d x\\&=\frac{1}{2} \log\left(2 \pi e \sigma^{2}\right)-1
+\end{aligned} $$
+
+\subsubsection{HalfNorm Target}
+
+\noindent \textbf{Existing Work:}
+
+\noindent \textbf{Cross-Entropy:}
+$$ \begin{aligned} \text { CrossEntropy }&=
+\end{aligned} $$
+\noindent \textbf{KL:}
+
+\subsection{Gamma Reference}
+
+\noindent \textbf{Entropy:}
+$$ \begin{aligned} \text { Entropy }&=k+\ln (\theta)+\ln (\Gamma(k))+(1-k) \psi(k) \end{aligned} $$
+
+\subsubsection{Gamma Target}
+
+\noindent \textbf{Existing Work:}
+
+\noindent \textbf{Cross-Entropy:}
+$$ \begin{aligned} \text { CrossEntropy }&=
+\end{aligned} $$
+\noindent \textbf{KL:}
+
+$$ \begin{aligned} \mathrm{KL}\left(k_{p}, \theta_{p} ; k_{q}, \theta_{q}\right)=&\left(k_{p}-k_{q}\right) \psi\left(k_{p}\right)-\log \Gamma\left(k_{p}\right)+\log \Gamma\left(k_{q}\right) \\
+&+k_{q}\left(\log \theta_{q}-\log \theta_{p}\right)+k_{p} \frac{\theta_{p}-\theta_{q}}{\theta_{q}}\end{aligned} $$
+
+
+Links:
+\begin{itemize}
+    \item https://statproofbook.github.io/P/gam-kl
+\end{itemize}
+
+\subsection{Lognormal Reference}
+
+\noindent \textbf{Entropy:}
+$$ \begin{aligned} \text { Entropy }&=\frac{1}{2}+\log (\sigma \sqrt{2 \pi})+\mu
+\end{aligned} $$
+
+\subsubsection{Lognormal Target}
+
+\noindent \textbf{Existing Work:}
+
+\noindent \textbf{Cross-Entropy:}
+$$ \begin{aligned} \text { CrossEntropy }&=
+\end{aligned} $$
+\noindent \textbf{KL:}
+
+$$ \begin{aligned}
+\mathrm{KL}\left(\mu_{p}, \sigma_{p} ; \mu_{q}, \sigma_{q}\right)=&\frac{1}{2 \sigma_{q}^{2}}\left[\left(\mu_{p}-\mu_{q}\right)^{2}+\sigma_{p}^{2}-\sigma_{q}^{2}\right]+\ln \frac{\sigma_{q}}{\sigma_{p}}
+\end{aligned} $$
+
+Links:
+\begin{itemize}
+ \item  https://stats.stackexchange.com/questions/411171/how-is-the-formula-for-the-entropy\\-of-the-lognormal-distribution-derived
+\end{itemize}
+
+\section{Bounded}
+
+\subsection{Beta Reference}
+
+\noindent \textbf{Entropy:}
+$$ \begin{aligned} \text{Entropy}&=-\mathbb{E}_{Q}\left[\logf(\alpha_{p},\beta_{p})\right]\\&=\int_{0}^{1}-f(\alpha_{p},\beta_{p})log(f(\alpha_{p},\beta_{p}))dx\\&=log(B(\alpha_{p},\beta_{p}))-(\alpha_{p}-1)\psi(\alpha_{p})-(\beta_{p}-1)\psi(\beta_{p})+(\alpha_{p}+\beta_{p}-2)\psi(\alpha_{p}+\beta_{p})
+\end{aligned} $$
+
+\subsubsection{Beta Target}
+
+\noindent \textbf{Existing Work:}
+
+\noindent \textbf{Cross-Entropy:}
+$$ \begin{aligned} \text {CrossEntropy }&=\int_{0}^{1}-f(\alpha_{p},\beta_{p})log(f(\alpha_{q},\beta_{q}))dx\\ &=log(B(\alpha_{q},\beta_{q}))-(\alpha_{q}-1)\psi(\alpha_{p})-(\beta_{q}-1)\psi(\beta)+(\alpha_{q}+\beta_{q}-2)\psi(\alpha_{p}+\beta_{p})\\
+\end{aligned} $$
+\noindent \textbf{KL:}
+$$ \begin{aligned}
+\mathrm{KL}\left(\alpha_{p}, \beta_{p} ; \alpha_{q}, \beta_{q}\right)&=
+log(\frac{B(\alpha_{q},\alpha_{q})}{B(\alpha_{p},\alpha_{p})})+(\alpha_{p}-\alpha_{q})\psi(\alpha_{p})+(\beta_{p}-\beta_{q})\psi(\beta_{p})+(\alpha_{q}-\alpha_{p}+\beta_{q}-\beta_{p})\psi(\alpha_{p}+\beta_{p})
+\end{aligned} $$
+
+https://en.wikipedia.org/wiki/Beta\_distribution
+
+
+
+\subsection{Logitnormal Reference}
+
+\noindent \textbf{Entropy:}
+$$ \begin{aligned} \text { Entropy }&
+\end{aligned} $$
+
+
+
+\subsubsection{Logitnormal Target}
+
+\noindent \textbf{Existing Work:}
+
+\noindent \textbf{Cross-Entropy:}
+$$ \begin{aligned} \text { CrossEntropy }&=
+\end{aligned} $$
+\noindent \textbf{KL:}
+
+\subsection{Uniform Reference}
+
+\noindent \textbf{Entropy:}
+$$ \begin{aligned} \text { Entropy }&=-\int_{a}^{b}\frac{1}{b-a}log(\frac{1}{b-a})dx\\&=log(b-a)
+\end{aligned} $$
+
+\subsubsection{Uniform Target}
+
+\noindent \textbf{Existing Work:}
+
+\noindent \textbf{Cross-Entropy:}
+$$ \begin{aligned} \text { CrossEntropy }&=-\int_{\min \{a_{p},a_{q}\}}^{\min \{b_{p},b_{q}\}}\frac{1}{b_{p}-a_{p}}log(\frac{1}{b_{q}-a_{q}})dx \\&=\frac{log(b_{q}-a_{q})(\min \{b_{p},b_{q}\}-\min \{a_{p},a_{q}\})}{b_{p}-a_{p}}
+\end{aligned} $$
+\noindent \textbf{KL:}
+
+$$ \begin{aligned}
+\mathrm{KL}\left(a_{p}, b_{p} ; a_{q},b_{q}\right)\\&=-\text { Entropy }+\text { CrossEntropy }\\&=-log(b-a)+\frac{log(b_{q}-a_{q})(\min \{b_{p},b_{q}\}-\min \{a_{p},a_{q}\})}{b_{p}-a_{p}}\\&=\frac{log(b_{q}-a_{q})(\min \{b_{p},b_{q}\}-\min \{a_{p},a_{q}\}+a_{p}-b_{p})}{b_{q}-a_{q}}
+\end{aligned} $$
+
+
+\end{document}

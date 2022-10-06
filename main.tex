@@ -5,6 +5,9 @@
 \usepackage{amsfonts}
 \usepackage[a4paper, total={6in, 8in}]{geometry}
 \usepackage[utf8]{inputenc}
+\usepackage{adjustbox}
+\usepackage{makecell}
+
 
 \title{Variational Bayes with TensorFlow}
 \author{Massive Data Institute}
@@ -48,7 +51,9 @@ Is the Derivation on Google?
  Normal & $\frac{\left(\mu_{q}-\mu_{p}\right)^{2}+\sigma_{q}^{2}}{2 \sigma^2_{p}}-\log \sigma_{q}+\log \sigma_{p}-\frac{1}{2}$  & 
  $\log \sqrt{\frac{\pi}{2}}+ \frac{1}{2} (\sigma_{p}+\mu_{p}^2)$ & 
 $ -\frac{\log \left(2 \pi \sigma_{q}^{2}\right)+1}{2} + log2b $ \\ 
- Cauchy & $-\log (4 \pi s_{p})+log\sigma\sqrt{2\pi}\frac{1}{\pi}arctan\frac{x-l}{s_{p}}  -\frac{1}{2} \int  \frac{s_{p} }{\pi}\frac{1}{(x-l)^{2}+s_{p}^{2}}(\frac{x-\mu}{\sigma} )^{2} dx $ & 
+ Cauchy & $-\log (4 \pi s_{p})+ 
+ log\sigma\sqrt{2\pi}\frac{1}{\pi}arctan\frac{x-l}{s_{p}}  -\frac{1}{2}\int 
+ \frac{s_{p}}{\pi}\frac{1}{(x-l)^{2}+s_{p}^{2}}(\frac{x-\mu}{\sigma} )^{2} dx $ & 
  $\log\frac{\left(s_{p}+s_{q}\right)^{2}+\left(l_{p}-l_{q}\right)^{2}}{4 s_{p} s_{q}}$ & 
 $-\log (4 \pi s_{p})+\frac{1}{\pi}log2b\arctan\frac{x-l}{s}  +\int \frac{s}{\pi b} \frac{\left | x-\mu \right | }{(x-l)^{2}+s^{2}}$ \\  
  Laplace & $-1-\log \left(2 b_{p}\right)+ \frac{b^{2}}{\sigma^{2}}+log(\sqrt{2\pi}\sigma) $
@@ -58,8 +63,6 @@ $-\log (4 \pi s_{p})+\frac{1}{\pi}log2b\arctan\frac{x-l}{s}  +\int \frac{s}{\pi 
  $\frac{b_{p} \exp \left(-\frac{\left|\mu_{p}-\mu_{q}\right|}{b_{p}}\right)+\left|\mu_{p}-\mu_{q}\right|}{b_{q}}+\log \frac{b_{q}}{b_{p}}-1 $
 \end{tabular}
 \end{center}
-
-
 
 Links:
 \begin{itemize}
@@ -94,6 +97,7 @@ Is the Derivation on Google?
 \end{center}
 
 \begin{center}
+\begin{adjustbox}{angle=90}
 \begin{tabular}{ c | c c c}
  & HalfNormal & Gamma & LogNormal \\
  \hline
@@ -105,12 +109,13 @@ Is the Derivation on Google?
  $-k-\ln (\theta)-\ln (\Gamma(k))-(1-k) \psi(k) + \int_{0}^{+\infty } (\frac{\log\frac{\sqrt{2}}{\sigma{\sqrt{\pi}}} }{\Gamma (k)\theta^{k}} x^{k+1}e^{-\frac{x}{\theta}}+\frac{x^{k+1}}{2\sigma^{2}\Gamma (k)\theta^{k}}e^{-\frac{x}{\theta} })dx $
  & 
  $\left(k_{p}-k_{q}\right) \psi\left(k_{p}\right)-\log \Gamma\left(k_{p}\right)+\log \Gamma\left(k_{q}\right)+k_{q}\left(\log \theta_{q}-\log \theta_{p}\right)+k_{p}\frac{\theta_{p}-\theta_{q}}{\theta_{q}}$ & 
-$\mathbf{k}-\log (\theta \Gamma(k))+(-1+k) \text { PolyGamma }(0, k)+ \frac{1}{2 \sigma^{2}}\left(\mu^{2}+\sigma^{2} \log (2 \pi)-2 \mu \log (\theta)+\log (\theta)^{2}+2 \sigma^{2} \log (\theta \sigma)+2\left(-\mu+\sigma^{2}+\log (\theta)\right) \text { PolyGamma }(0, k)+\text { PolyGamma }(0, k)^{2}+\text { PolyGamma }(1, k)\right)$ \\  
+\makecell{\tiny$\mathbf{k}-\log (\theta \Gamma(k))+(-1+k) \text { PolyGamma }(0, k) + $\\$ \tiny\frac{1}{2 \sigma^{2}}\left(\mu^{2}+\sigma^{2} \log (2 \pi)-2 \mu \log (\theta)+\log (\theta)^{2}+2 \sigma^{2} \log (\theta \sigma)+2\left(-\mu+\sigma^{2}+\log (\theta)\right) \text { PolyGamma }(0, k)+\text { PolyGamma }(0, k)^{2}+\text { PolyGamma }(1, k)\right)$} \\  
  LogNormal & $-\frac{1}{2}-\log (\sigma_{p} \sqrt{2 \pi})+-\mu_{p}+\frac{\log(\frac{\sqrt{2}}{\sigma_{p}} )e^{\frac{\sqrt{2}\mu_{p}}{\sigma_{p}} }}{(\sqrt{2}+\sigma_{p})(\sqrt{2\pi})}+\frac{e^{\frac{\sqrt2}{\sigma_{q}}}}{2\sqrt{2\pi}\sigma^{2}_{q}(\sigma_{q}-\sqrt{2})}$
  & $-\frac{1}{2}-\log (\sigma \sqrt{2 \pi})-\mu-\int_{0}^{+\infty } \frac{e^{-\frac{(\log{x}-\mu)^{2}}{2\theta^{2}} }}{x\sigma\sqrt{2\pi}} \log\frac{x^{k-1}}{\Gamma(k)\theta^{k}}dx+\frac{\int_{0}^{+\infty} x^{\frac{2-\sqrt{2\sigma}}{\sqrt2\sigma}e^{x} }dx }{(\sigma-\sqrt{2\pi})e^{\theta+\frac{2\mu}{\sqrt{2\sigma}}}}$
  & 
  $\frac{1}{2 \sigma_{q}^{2}}\left[\left(\mu_{p}-\mu_{q}\right)^{2}+\sigma_{p}^{2}-\sigma_{q}^{2}\right]+\ln \frac{\sigma_{q}}{\sigma_{p}}$
 \end{tabular}
+\end{adjustbox}
 \end{center}
 
 
@@ -146,6 +151,23 @@ Is the Derivation on Google?
 \end{tabular}
 \end{center}
 
+
+
+\begin{center}
+\begin{tabular}{ c | c c c }
+ & Beta & logitnormal & Uniform \\
+ \hline
+ Beta & 
+ $log(\frac{B(\alpha_{q},\alpha_{q})}{B(\alpha_{p},\alpha_{p})})+(\alpha_{p}-\alpha_{q})\psi(\alpha_{p})+(\beta_{p}-\beta_{q})\psi(\beta_{p})+(\alpha_{q}-\alpha_{p}+\beta_{q}-\beta_{p})\psi(\alpha_{p}+\beta_{p})$
+ & $-log(B(\alpha_{p},\beta_{p}))-(\alpha_{p}-1)\psi(\alpha_{p})-(\beta_{p}-1)\psi(\beta_{p})+(\alpha_{p}+\beta_{p}-2)\psi(\alpha_{p}+\beta_{p})+\log\sigma\sqrt{2\pi}+\int_{0}^{1} \frac{x^{\alpha-1}(1-x)^{\beta-1}}{B(\alpha ,\beta)} (\frac{(logitx-\mu)^2}{2\sigma^{2}}+\log{x(1-x)} )$
+ & $-log(B(\alpha_{p},\beta_{p}))-(\alpha_{p}-1)\psi(\alpha_{p})-(\beta_{p}-1)\psi(\beta_{p})+(\alpha_{p}+\beta_{p}-2)\psi(\alpha_{p}+\beta_{p})+\int_{(0,1)\cap(a,b) } \frac{x^{\alpha-1}(1-x)^{\beta-1}}{B(\alpha-\beta)}\log(b-a) dx$\\
+ logitnormal & N & Y & N \\  
+ Uniform & $-log(b-a)+\frac{1}{b-a}
+\int_{(0,1)\cap(a,b) }\log{\frac{x^{\alpha-1}(1-x)^{\beta-1}}{B(\alpha-\beta)}} dx$
+ & $ -log(b-a)+\int_{(0,1)\cap(a,b) }\frac{1}{b-a}\log{\frac{1}{\sigma \sqrt{2 \pi}} e^{-\frac{(\operatorname{logit}(x)-\mu)^{2}}{2 \sigma^{2}}} \frac{1}{x(1-x)}}dx$
+ & $\frac{log(b_{q}-a_{q})(\min \{b_{p},b_{q}\}-\min \{a_{p},a_{q}\}+a_{p}-b_{p})}{b_{q}-a_{q}}$
+\end{tabular}
+\end{center}
 
 
 \section{Unbounded}
@@ -388,8 +410,16 @@ log(\frac{B(\alpha_{q},\alpha_{q})}{B(\alpha_{p},\alpha_{p})})+(\alpha_{p}-\alph
 https://en.wikipedia.org/wiki/Beta\_distribution
 
 \subsubsection{Beta-Logitnormal}
-\subsubsection{Beta-Uniform}
 
+$$ \begin{aligned} \text {CrossEntropy }\left(\alpha, \beta ; \mu, \sigma \right)&=
+\log\sigma\sqrt{2\pi}+\int_{0}^{1} \frac{x^{\alpha-1}(1-x)^{\beta-1}}{B(\alpha ,\beta)} (\frac{(logitx-\mu)^2}{2\sigma^{2}}+\log{x(1-x)} )dx
+\end{aligned} $$
+
+
+\subsubsection{Beta-Uniform}
+$$ \begin{aligned} \text {CrossEntropy }\left(\alpha, \beta ; a, b\right)&=
+\int_{(0,1)\cap(a,b) } \frac{x^{\alpha-1}(1-x)^{\beta-1}}{B(\alpha-\beta)}\log(b-a) dx
+\end{aligned} $$
 
 \subsection{Logitnormal Reference}
 
@@ -410,7 +440,14 @@ $$ \begin{aligned} \text { CrossEntropy }&=
 
 
 \subsubsection{Logitnormal-Beta}
+$$ \begin{aligned} \text {CrossEntropy }\left(\sigma,\mu ;\alpha, \beta \right)&=
+-\int_{0}^{1}\frac{1}{\sigma \sqrt{2 \pi}} e^{-\frac{(\operatorname{logit}(x)-\mu)^{2}}{2 \sigma^{2}}} \frac{1}{x(1-x)} \log\frac{x^{\alpha-1}(1-x)^{\beta-1}}{B(\alpha,\beta)}dx
+\end{aligned} $$
+
 \subsubsection{Logitnormal-Uniform}
+$$ \begin{aligned} \text {CrossEntropy }\left(\sigma, \mu;a,b \right)&=
+\int_{(0,1)\cap(a,b) }\frac{1}{\sigma \sqrt{2 \pi}} e^{-\frac{(\operatorname{logit}(x)-\mu)^{2}}{2 \sigma^{2}}} \frac{1}{x(1-x)}\log{(b-a)}dx
+\end{aligned} $$
 
 
 \subsection{Uniform Reference}
@@ -433,6 +470,15 @@ $$ \begin{aligned}
 \end{aligned} $$
 
 \subsubsection{Uniform-Beta}
+$$ \begin{aligned} \text {CrossEntropy }\left( a, b;\alpha, \beta \right)&=\frac{1}{b-a}
+\int_{(0,1)\cap(a,b) }\log{\frac{x^{\alpha-1}(1-x)^{\beta-1}}{B(\alpha-\beta)}} dx
+\end{aligned} $$
+
+
 \subsubsection{Uniform-Logitnormal}
+$$ \begin{aligned} \text {CrossEntropy }\left(a,b;\sigma, \mu \right)&=
+\int_{(0,1)\cap(a,b) }\frac{1}{b-a}\log{\frac{1}{\sigma \sqrt{2 \pi}} e^{-\frac{(\operatorname{logit}(x)-\mu)^{2}}{2 \sigma^{2}}} \frac{1}{x(1-x)}}dx
+\end{aligned} $$
+
 
 \end{document}

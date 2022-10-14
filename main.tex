@@ -49,8 +49,8 @@ Is the Derivation on Google?
  & Normal & Cauchy & Laplace \\
  \hline
  Normal & $\frac{\left(\mu_{q}-\mu_{p}\right)^{2}+\sigma_{q}^{2}}{2 \sigma^2_{p}}-\log \sigma_{q}+\log \sigma_{p}-\frac{1}{2}$  & 
- $\log \sqrt{\frac{\pi}{2}}+ \frac{1}{2} (\sigma_{p}+\mu_{p}^2)$ & 
-$ -\frac{\log \left(2 \pi \sigma_{q}^{2}\right)+1}{2} + log2b $ \\ 
+ $-\frac{\log \left(2 \pi \sigma_{q}^{2}\right)+1}{2} +\log{\pi s}+\frac{1}{\sigma\sqrt{2\pi}} \int_{-\infty}^{+\infty} e^{-\frac{1}{2}(\frac{x-\mu}{\sigma})^{2}}log(1+\frac{(x-l)^{2}}{s^{2}} )dx$ & 
+$ -\frac{\log \left(2 \pi \sigma_{q}^{2}\right)+1}{2}+log2b + 2\int_{\mu_{p}}^{+\infty} \frac{1}{\sigma\sqrt{2\pi}} e^{-\frac{1}{2}(\frac{x-\mu_{q}}{\sigma})^{2}}\log{\frac{x-\mu_{p}}{b}} $ \\ 
  Cauchy & $-\log (4 \pi s_{p})+ 
  log\sigma\sqrt{2\pi}\frac{1}{\pi}arctan\frac{x-l}{s_{p}}  -\frac{1}{2}\int 
  \frac{s_{p}}{\pi}\frac{1}{(x-l)^{2}+s_{p}^{2}}(\frac{x-\mu}{\sigma} )^{2} dx $ & 
@@ -194,14 +194,18 @@ $$ \begin{aligned} \mathrm{KL}\left(\mathrm{N}\left(\mu_{q}, \sigma_{q}^{2}\righ
 \subsubsection{Normal-Laplace}
 
 $$ \begin{aligned} \text { CrossEntropy }&=
--\int_{-\infty}^{\infty} p_{ \mu,\sigma}(x) \log q_{b,\mu(x)} \mathrm{d} x \\
-&=log2b
+-\int_{-\infty}^{\infty} q_{ \mu,\sigma}(x) \log p_{b,\mu(x)} \mathrm{d} x \\
+&=\log{2b}+\frac{-2\sigma^{2}+2\sigma^2\exp{\frac{-\mu_{p}^{2}}{2\sigma_{2}} }-\mu_{p}^{2}\exp{\frac{-\mu_{q}^{2}}{2\sigma_{2}} }-2(\frac{\sigma^{2}\mu_{p}}{\mu_{q}}-\frac{\sigma^{4}}{\mu_{q}^{2}}\exp{\frac{\mu_{p}\mu_{q}}{\sigma^{2}} })}{b\sigma\sqrt{2\pi}}+\frac{\mu_{p}}{b}+\frac{(1-\frac{\mu_{p}}{b})(1+erf(\frac{\mu_{p}-\mu_{q}}{\sigma\sqrt{2\pi}} )}{2} 
 \end{aligned}
 $$
-
+$$ \begin{aligned} \mathrm{KL}\left(\mathrm{N}\left(\mu_{q}, \sigma_{q}^{2}\right) \| \mathrm{Laplace}\left(b_{p}, \sigma_{p}\right)\right)&=-\frac{\log \left(2 \pi \sigma_{q}^{2}\right)+1}{2} +\log{2b}+\frac{-2\sigma^{2}+2\sigma^2\exp{\frac{-\mu_{p}^{2}}{2\sigma_{2}} }-\mu_{p}^{2}\exp{\frac{-\mu_{q}^{2}}{2\sigma_{2}} }-2(\frac{\sigma^{2}\mu_{p}}{\mu_{q}}-\frac{\sigma^{4}}{\mu_{q}^{2}}\exp{\frac{\mu_{p}\mu_{q}}{\sigma^{2}} })}{b\sigma\sqrt{2\pi}}+\frac{\mu_{p}}{b}+\frac{(1-\frac{\mu_{p}}{b})(1+erf(\frac{\mu_{p}-\mu_{q}}{\sigma\sqrt{2\pi}} )}{2} 
+\end{aligned} $$
 \subsubsection{Normal-Cauchy}
-$$ \begin{aligned}  \text { CrossEntropy }&=-\int_{-\infty}^{\infty} p_{\mu,\sigma}(x) \log q_{s,l(x)} \mathrm{d} x \\
-&=\log \sqrt{\frac{\pi}{2}}+ \frac{1}{2} (\sigma_{p}+\mu_{p}^2) \\
+$$ \begin{aligned}  \text { CrossEntropy }&=-\int_{-\infty}^{\infty} q_{\mu,\sigma}(x) \log p_{s,l(x)} \mathrm{d} x \\
+&=\log{\pi s}+\frac{1}{\sigma\sqrt{2\pi}} \int_{-\infty}^{+\infty} e^{-\frac{1}{2}(\frac{x-\mu}{\sigma})^{2}}log(1+\frac{(x-l)^{2}}{s^{2}} )dx \\
+\end{aligned}
+$$
+$$ \begin{aligned} \mathrm{KL}\left(\mathrm{N}\left(\mu_{q}, \sigma_{q}^{2}\right) \| \mathrm{Cauchy}\left(s, l\right)\right)&=-\frac{\log \left(2 \pi \sigma_{q}^{2}\right)+1}{2} +\log{\pi s}+\frac{1}{\sigma\sqrt{2\pi}} \int_{-\infty}^{+\infty} e^{-\frac{1}{2}(\frac{x-\mu}{\sigma})^{2}}log(1+\frac{(x-l)^{2}}{s^{2}} )dx
 \end{aligned}
 $$
 
@@ -258,12 +262,12 @@ $$ \begin{aligned} \text { Entropy }&=-\int_{-\infty}^{\infty} p(x) \log p(x) d 
 \noindent \textbf{Cross-Entropy:}
 $$ \begin{aligned} \text { CrossEntropy }
 \quad &=-\int_{-\infty}^{\infty} p(x) \log q(x) d x \\
-\quad &=\int_{-\infty}^{\infty} \frac{\left|x-\mu_{q}\right|}{2 b_{p} b_{q}} \exp \left(-\frac{\left|x-\mu_{p}\right|}{b_{p}}\right) d x+\log \left(2 b_{q}\right)\\&=\frac{b_{p} \exp \left(-\frac{\left|\mu_{p}-\mu_{q}\right|}{b_{p}}\right)+\left|\mu_{p}-\mu_{q}\right|}{b_{q}}+\log \left(2 b_{q}\right)
+\quad &=\int_{-\infty}^{\infty} \frac{\left|x-\mu_{q}\right|}{2 b_{p} b_{q}} \exp \left(-\frac{\left|x-\mu_{p}\right|}{b_{p}}\right) d x+\log \left(2 b_{q}\right)\\&=e^{\left(-\frac{\left|\mu_{p}-\mu_{q}\right|}{b_{p}}+\log{\frac{b_{q}}{b_{p}}}\right)} +\frac{ \left|\mu_{p}-\mu_{q}\right|}{b_{q}}+\log \left(2 b_{q}\right)
 \end{aligned}
  $$
 \noindent \textbf{KL:}
 
-$$ \begin{aligned}\mathrm{KL}\left(\mathrm{Laplace}\left(\mu_{p}, \sigma_{p}^{2}\right) \| \mathrm{Laplace}\left(\mu_{q}, \sigma_{q}^{2}\right)\right)&=-\text { Entropy }+\text{ CrossEntropy }\\&=-1-\log \left(2 b_{p}\right)+\frac{b_{p} \exp \left(-\frac{\left|\mu_{p}-\mu_{q}\right|}{b_{p}}\right)+\left|\mu_{p}-\mu_{q}\right|}{b_{q}}+\log \left(2 b_{q}\right)\\&=\frac{b_{p} \exp \left(-\frac{\left|\mu_{p}-\mu_{q}\right|}{b_{p}}\right)+\left|\mu_{p}-\mu_{q}\right|}{b_{q}}+\log \frac{b_{q}}{b_{p}}-1\\
+$$ \begin{aligned}\mathrm{KL}\left(\mathrm{Laplace}\left(\mu_{p}, \sigma_{p}^{2}\right) \| \mathrm{Laplace}\left(\mu_{q}, \sigma_{q}^{2}\right)\right)&=-\text { Entropy }+\text{ CrossEntropy }\\&=-1-\log \left(2 b_{p}\right)+\frac{b_{p} \exp \left(-\frac{\left|\mu_{p}-\mu_{q}\right|}{b_{p}}\right)+\left|\mu_{p}-\mu_{q}\right|}{b_{q}}+\log \left(2 b_{q}\right)\\&=e^{\left(-\frac{\left|\mu_{p}-\mu_{q}\right|}{b_{p}}+\log{\frac{b_{q}}{b_{p}}}\right)} +\frac{ \left|\mu_{p}-\mu_{q}\right|}{b_{q}}+\log \frac{b_{q}}{b_{p}}-1\\
 \end{aligned}
 $$
 Links:
@@ -274,13 +278,18 @@ Links:
 
 \subsubsection{Laplace-Normal}
 $$ \begin{aligned} \text { CrossEntropy }&=
--\int_{-\infty}^{\infty} p_{b,\mu}(x) \log q_{\mu, \sigma(x)} \mathrm{d} x \\
-&=\frac{b^{2}}{\sigma^{2}}+log(\sqrt{2\pi}\sigma) 
+-\int_{-\infty}^{\infty} q_{b,\mu}(x) \log p_{\mu, \sigma(x)} \mathrm{d} x \\
+&=\frac{b}{\sigma^{2}}+log(\sqrt{2\pi}\sigma) 
 \end{aligned}
  $$
+ 
+$$ \begin{aligned} \mathrm{KL}\left(\mathrm{Laplace}\left(\mu_{q}, b\right) \| \mathrm{N}\left(\mu_{p}, \sigma\right)\right)&= -1-\log \left(2 b\right)+\frac{b}{\sigma^{2}}+log(\sqrt{2\pi}\sigma) 
+ \end{aligned}
+ $$
+ 
 \subsubsection{Laplace-Cauchy}
 $$ \begin{aligned} \text { CrossEntropy }&=
--\int_{-\infty}^{\infty} p_{b,\mu}(x) \log q_{s, la(x)} \mathrm{d} x \\
+-\int_{-\infty}^{\infty} q_{b,\mu}(x) \log p_{s, la(x)} \mathrm{d} x \\
 &=log\pi+ \int log(\frac{s}{(x-l)^{2}+s^{2}} )\frac{e^{-\frac{\left | x-\mu \right | }{b} } }{2b} dx \\
 \end{aligned}
  $$

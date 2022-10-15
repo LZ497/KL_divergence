@@ -279,11 +279,11 @@ Links:
 \subsubsection{Laplace-Normal}
 $$ \begin{aligned} \text { CrossEntropy }&=
 -\int_{-\infty}^{\infty} q_{b,\mu}(x) \log p_{\mu, \sigma(x)} \mathrm{d} x \\
-&=\frac{b}{\sigma^{2}}+log(\sqrt{2\pi}\sigma) 
+&=\frac{(\mu_{q}-\mu_{p})^{2}+2b^{2}}{2\sigma^{2}}+log(\sqrt{2\pi}\sigma) 
 \end{aligned}
  $$
  
-$$ \begin{aligned} \mathrm{KL}\left(\mathrm{Laplace}\left(\mu_{q}, b\right) \| \mathrm{N}\left(\mu_{p}, \sigma\right)\right)&= -1-\log \left(2 b\right)+\frac{b}{\sigma^{2}}+log(\sqrt{2\pi}\sigma) 
+$$ \begin{aligned} \mathrm{KL}\left(\mathrm{Laplace}\left(\mu_{q}, b\right) \| \mathrm{N}\left(\mu_{p}, \sigma\right)\right)&= -1-\log \left(2 b\right)+\frac{(\mu_{q}-\mu_{p})^{2}+2b^{2}}{2\sigma^{2}}+log(\sqrt{2\pi}\sigma) 
  \end{aligned}
  $$
  

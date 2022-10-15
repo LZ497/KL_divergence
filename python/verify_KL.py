@@ -122,7 +122,7 @@ comparison(distq, distp)
 #### q:Laplace - p: Normal  KL(a || b)
 distq = tfpd.Laplace(a_loc, a_scale)
 distp = tfpd.Normal(b_loc, b_scale)
-analytic = -1-math.log(2*a_scale)+ ((((a_loc-b_loc)**2)+b_loc*a_scale)/ (2*(b_scale**2))) + math.log(math.sqrt(2*math.pi)* b_scale)
+analytic = -1-math.log(2*a_scale)+ ((((a_loc-b_loc)**2)+(2*a_scale**2))/ (2*(b_scale**2))) + math.log(math.sqrt(2*math.pi)* b_scale)
 print('q:Laplace - p: Normal')
 comparison(distq, distp)
 

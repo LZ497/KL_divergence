@@ -49,14 +49,14 @@ Is the Derivation on Google?
  & Normal & Cauchy & Laplace \\
  \hline
  Normal & $\frac{\left(\mu_{q}-\mu_{p}\right)^{2}+\sigma_{q}^{2}}{2 \sigma^2_{p}}-\log \sigma_{q}+\log \sigma_{p}-\frac{1}{2}$  & 
- $-\frac{\log \left(2 \pi \sigma_{q}^{2}\right)+1}{2} +\log{\pi s}+\frac{1}{\sigma\sqrt{2\pi}} \int_{-\infty}^{+\infty} e^{-\frac{1}{2}(\frac{x-\mu}{\sigma})^{2}}log(1+\frac{(x-l)^{2}}{s^{2}} )dx$ & 
-$ -\frac{\log \left(2 \pi \sigma_{q}^{2}\right)+1}{2}+log2b + 2\int_{\mu_{p}}^{+\infty} \frac{1}{\sigma\sqrt{2\pi}} e^{-\frac{1}{2}(\frac{x-\mu_{q}}{\sigma})^{2}}\log{\frac{x-\mu_{p}}{b}} $ \\ 
+ $-\frac{\log \left(2 \pi \sigma_{q}^{2}\right)+1}{2} +\log{\pi s}+\frac{1}{\sigma\sqrt{2\pi}} \int_{-\infty}^{+\infty} e^{-\frac{1}{2}(\frac{x-\mu}{\sigma})^{2}}log(1+\frac{(x-l)^{2}}{s^{2}} )dx$ &
+$ -\frac{\log \left(2 \pi \sigma_{q}^{2}\right)+1}{2} +\log{2b}+\frac{2\sigma}{\sqrt{2 \pi} b} e^{-\frac{\left(u_{q}-u_{p}\right)^{2}}{2 \sigma^{2}}}+\frac{\left |u_{q}-u_{p}  \right | }{b} p\left(\left | \xi \right |  <\left|u_{q}-u_{p}\right|\right).\quad \xi \sim{N(0,\sigma)} $  &
  Cauchy & $-\log (4 \pi s_{p})+ 
- log\sigma\sqrt{2\pi}\frac{1}{\pi}arctan\frac{x-l}{s_{p}}  -\frac{1}{2}\int 
- \frac{s_{p}}{\pi}\frac{1}{(x-l)^{2}+s_{p}^{2}}(\frac{x-\mu}{\sigma} )^{2} dx $ & 
+ \log {\sigma\sqrt{2 \pi}}+\frac{(l-u)^{2}}{2 \sigma^{2}}  -s^{3} \int_{0}^{+\infty} \frac{y^{2}}{1+y^{2}} d y $ & 
  $\log\frac{\left(s_{p}+s_{q}\right)^{2}+\left(l_{p}-l_{q}\right)^{2}}{4 s_{p} s_{q}}$ & 
-$-\log (4 \pi s_{p})+\frac{1}{\pi}log2b\arctan\frac{x-l}{s}  +\int \frac{s}{\pi b} \frac{\left | x-\mu \right | }{(x-l)^{2}+s^{2}}$ \\  
- Laplace & $-1-\log \left(2 b_{p}\right)+ \frac{b^{2}}{\sigma^{2}}+log(\sqrt{2\pi}\sigma) $
+$-\log (4 \pi s_{p})+log2b+\int \frac{s}{\pi b} \frac{\left | x-\mu \right | }{(x-l)^{2}+s^{2}}$ \\  
+ Laplace & $-1-\log \left(2 b\right)+\frac{(\mu_{q}-\mu_{p})^{2}+2b^{2}}{2\sigma^{2}}+log(\sqrt{2\pi}\sigma) 
+ $
  & 
  $-\log (4 \pi s_{p})+log\pi+ \int log(\frac{s}{(x-l)^{2}+s^{2}} )\frac{e^{-\frac{\left | x-\mu \right | }{b} } }{2b} dx $ 
  & 
@@ -195,10 +195,10 @@ $$ \begin{aligned} \mathrm{KL}\left(\mathrm{N}\left(\mu_{q}, \sigma_{q}^{2}\righ
 
 $$ \begin{aligned} \text { CrossEntropy }&=
 -\int_{-\infty}^{\infty} q_{ \mu,\sigma}(x) \log p_{b,\mu(x)} \mathrm{d} x \\
-&=\log{2b}+\frac{-2\sigma^{2}+2\sigma^2\exp{\frac{-\mu_{p}^{2}}{2\sigma_{2}} }-\mu_{p}^{2}\exp{\frac{-\mu_{q}^{2}}{2\sigma_{2}} }-2(\frac{\sigma^{2}\mu_{p}}{\mu_{q}}-\frac{\sigma^{4}}{\mu_{q}^{2}}\exp{\frac{\mu_{p}\mu_{q}}{\sigma^{2}} })}{b\sigma\sqrt{2\pi}}+\frac{\mu_{p}}{b}+\frac{(1-\frac{\mu_{p}}{b})(1+erf(\frac{\mu_{p}-\mu_{q}}{\sigma\sqrt{2\pi}} )}{2} 
+&=\log{2b}+\frac{2\sigma}{\sqrt{2 \pi} b} e^{-\frac{\left(u_{q}-u_{p}\right)^{2}}{2 \sigma^{2}}}+\frac{\left |u_{q}-u_{p}  \right | }{b} p\left(\left | \xi \right |  <\left|u_{q}-u_{p}\right|\right).\quad \xi \sim{N(0,\sigma)}
 \end{aligned}
 $$
-$$ \begin{aligned} \mathrm{KL}\left(\mathrm{N}\left(\mu_{q}, \sigma_{q}^{2}\right) \| \mathrm{Laplace}\left(b_{p}, \sigma_{p}\right)\right)&=-\frac{\log \left(2 \pi \sigma_{q}^{2}\right)+1}{2} +\log{2b}+\frac{-2\sigma^{2}+2\sigma^2\exp{\frac{-\mu_{p}^{2}}{2\sigma_{2}} }-\mu_{p}^{2}\exp{\frac{-\mu_{q}^{2}}{2\sigma_{2}} }-2(\frac{\sigma^{2}\mu_{p}}{\mu_{q}}-\frac{\sigma^{4}}{\mu_{q}^{2}}\exp{\frac{\mu_{p}\mu_{q}}{\sigma^{2}} })}{b\sigma\sqrt{2\pi}}+\frac{\mu_{p}}{b}+\frac{(1-\frac{\mu_{p}}{b})(1+erf(\frac{\mu_{p}-\mu_{q}}{\sigma\sqrt{2\pi}} )}{2} 
+$$ \begin{aligned} \mathrm{KL}\left(\mathrm{N}\left(\mu_{q}, \sigma_{q}^{2}\right) \| \mathrm{Laplace}\left(b_{p}, \sigma_{p}\right)\right)&=-\frac{\log \left(2 \pi \sigma_{q}^{2}\right)+1}{2} +\log{2b}+\frac{2\sigma}{\sqrt{2 \pi} b} e^{-\frac{\left(u_{q}-u_{p}\right)^{2}}{2 \sigma^{2}}}+\frac{\left |u_{q}-u_{p}  \right | }{b} p\left(\left | \xi \right |  <\left|u_{q}-u_{p}\right|\right).\quad \xi \sim{N(0,\sigma)}
 \end{aligned} $$
 \subsubsection{Normal-Cauchy}
 $$ \begin{aligned}  \text { CrossEntropy }&=-\int_{-\infty}^{\infty} q_{\mu,\sigma}(x) \log p_{s,l(x)} \mathrm{d} x \\
@@ -238,16 +238,16 @@ Links:
 \subsubsection{Cauchy-Normal}
 $$ \begin{aligned} \text { CrossEntropy }&=
 -\int_{-\infty}^{\infty} p_{l_{p}, s_{p}}(x) \log q_{\mu, \sigma(x)} \mathrm{d} x \\
-&=log\sigma\sqrt{2\pi}\frac{1}{\pi}\arctan\frac{x-l}{s_{p}}  -\frac{1}{2} \int  \frac{s_{p} }{\pi}\frac{1}{(x-l)^{2}+s_{p}^{2}}(\frac{x-\mu}{\sigma} )^{2} dx
+&=\log {\sigma\sqrt{2 \pi}}+\frac{(l-u)^{2}}{2 \sigma^{2}}  -s^{3} \int_{0}^{+\infty} \frac{y^{2}}{1+y^{2}} d y
 \end{aligned} $$
 
 \subsubsection{Cauchy-Laplace}
 $$
 \begin{aligned} \text { CrossEntropy }&=
 -\int_{-\infty}^{\infty} p_{l_{p}, s_{p}}(x) \log q_{b, \mu(x)} \mathrm{d} x \\
-&=\frac{1}{\pi}log2b\arctan\frac{x-l}{s}  +\int \frac{s}{\pi b} \frac{\left | x-\mu \right | }{(x-l)^{2}+s^{2}}dx 
+&=log2b  +\int \frac{s}{\pi b} \frac{\left | x-\mu \right | }{(x-l)^{2}+s^{2}}dx 
 \end{aligned}$$
-
+*integral diverges
 
 \subsection{Laplace Reference}
 
@@ -290,7 +290,9 @@ $$ \begin{aligned} \mathrm{KL}\left(\mathrm{Laplace}\left(\mu_{q}, b\right) \| \
 \subsubsection{Laplace-Cauchy}
 $$ \begin{aligned} \text { CrossEntropy }&=
 -\int_{-\infty}^{\infty} q_{b,\mu}(x) \log p_{s, la(x)} \mathrm{d} x \\
-&=log\pi+ \int log(\frac{s}{(x-l)^{2}+s^{2}} )\frac{e^{-\frac{\left | x-\mu \right | }{b} } }{2b} dx \\
+&=log\pi+\int log(\frac{s}{(x-l)^{2}+s^{2}} )\frac{e^{-\frac{\left | x-\mu \right | }{b} } }{2b} dx \\
+&=log\pi+ \log{s}- \frac{1}{2b}\int_{-\infty}^{\infty}\log{[{(x-l)^{2}+s^{2}}]}
+e^{-\frac{\left | x-\mu \right |}{b} dx
 \end{aligned}
  $$
  

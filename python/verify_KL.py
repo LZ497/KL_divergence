@@ -102,13 +102,15 @@ print('q: Uniform- p:Uniform')
 comparison(distq, distp)
 
 
+#### a:Normal -p:Laplace  KL(a || b)
 import math
+import scipy.stats
 #### a:Normal -p:Laplace  KL(a || b)
 distq = tfpd.Normal(a_loc, a_scale)
 distp = tfpd.Laplace(b_loc, b_scale)
-analytic = -0.5*(1+tf.math.log(2.* math.pi*(a_scale**2)))+tf.math.log(2.*b_scale)+(-2*(a_scale**2))+ (2*(a_scale**2)*math.exp(-b_loc**2/(2*(a_scale**2))))- \
-((b_loc**2)*math.exp(-a_loc**2/(2*(a_scale**2))))-(2*(((b_scale**2)*b_loc/a_loc)-((b_scale**4)/(a_loc**2)))*math.exp(a_loc*b_loc/(a_scale**2)))+ \
-(b_loc/b_scale)+((1-b_loc/b_scale)*0.5*(1+(a_loc-b_loc)/(a_scale*2**0.5)))
+p = scipy.stats.norm(0, a_scale).cdf(abs(a_loc-b_loc))- scipy.stats.norm(0, a_scale).cdf(-abs(a_loc-b_loc))
+analytic = -0.5*(math.log(2*math.pi*(a_scale**2))+1) + math.log(2*b_scale)+(abs(a_loc-b_loc)/b_scale)* p + \
+    (2*a_scale)*(math.exp(-((a_loc-b_loc)**2)/(2*(a_scale**2))))/(b_scale*((2*math.pi)**0.5))
 print('a:Normal -p:Laplace')
 comparison(distq, distp)
 

@@ -103,29 +103,27 @@ comparison(distq, distp)
 
 
 #### a:Normal -p:Laplace  KL(a || b)
-import math
-import scipy.stats
-#### a:Normal -p:Laplace  KL(a || b)
 distq = tfpd.Normal(a_loc, a_scale)
 distp = tfpd.Laplace(b_loc, b_scale)
-p = scipy.stats.norm(0, a_scale).cdf(abs(a_loc-b_loc))- scipy.stats.norm(0, a_scale).cdf(-abs(a_loc-b_loc))
-analytic = -0.5*(math.log(2*math.pi*(a_scale**2))+1) + math.log(2*b_scale)+(abs(a_loc-b_loc)/b_scale)* p + \
-    (2*a_scale)*(math.exp(-((a_loc-b_loc)**2)/(2*(a_scale**2))))/(b_scale*((2*math.pi)**0.5))
-print('a:Normal -p:Laplace')
+analytic = distq.kl_divergence(distp).numpy()
+print('q:Normal - p: Laplace')
 comparison(distq, distp)
 
+
+#### q:Laplace - p: Normal  KL(a || b)
+distq = tfpd.Laplace(a_loc, a_scale)
+distp = tfpd.Normal(b_loc, b_scale)
+analytic = distq.kl_divergence(distp).numpy()
+print('q:Laplace - p: Normal')
+comparison(distq, distp)
+
+
+#### failed :
 #### q:Normal -p:Cauchy  KL(a || b)
 distq = tfpd.Normal(a_loc, a_scale)
 distp = tfpd.Laplace(b_loc, b_scale)
 analytic = math.log(math.sqrt(0.5*math.pi))+0.5*( a_scale+a_loc**2)-0.5*(1+math.log(2*math.pi*(a_scale**2)))
 print('q:Normal -p:Cauchy')
-comparison(distq, distp)
-
-#### q:Laplace - p: Normal  KL(a || b)
-distq = tfpd.Laplace(a_loc, a_scale)
-distp = tfpd.Normal(b_loc, b_scale)
-analytic = -1-math.log(2*a_scale)+ ((((a_loc-b_loc)**2)+(2*a_scale**2))/ (2*(b_scale**2))) + math.log(math.sqrt(2*math.pi)* b_scale)
-print('q:Laplace - p: Normal')
 comparison(distq, distp)
 
 #### q:Laplace - p:Cauchy

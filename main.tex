@@ -5,6 +5,9 @@
 \usepackage{amsfonts}
 \usepackage[a4paper, total={6in, 8in}]{geometry}
 \usepackage[utf8]{inputenc}
+\usepackage{adjustbox}
+\usepackage{makecell}
+
 
 \title{Variational Bayes with TensorFlow}
 \author{Massive Data Institute}
@@ -46,12 +49,23 @@ Is the Derivation on Google?
  & Normal & Cauchy & Laplace \\
  \hline
  Normal & $\frac{\left(\mu_{q}-\mu_{p}\right)^{2}+\sigma_{q}^{2}}{2 \sigma^2_{p}}-\log \sigma_{q}+\log \sigma_{p}-\frac{1}{2}$  & 
+<<<<<<< HEAD
  $\log \sqrt{\frac{\pi}{2}}+ \frac{1}{2} (\sigma_{p}+\mu_{p}^2)$ & 
 $ -\frac{\log \left(2 \pi \sigma_{q}^{2}\right)+1}{2} + log2b $ \\ 
  Cauchy & $-\log (4 \pi s_{p})+log\sigma\sqrt{2\pi}\frac{1}{\pi}arctan\frac{x-l}{s_{p}}  -\frac{1}{2} \int  \frac{s_{p} }{\pi}\frac{1}{(x-l)^{2}+s_{p}^{2}}(\frac{x-\mu}{\sigma} )^{2} dx $ & 
  $\log\frac{\left(s_{p}+s_{q}\right)^{2}+\left(l_{p}-l_{q}\right)^{2}}{4 s_{p} s_{q}}$ & 
 $-\log (4 \pi s_{p})+\frac{1}{\pi}log2b\arctan\frac{x-l}{s}  +\int \frac{s}{\pi b} \frac{\left | x-\mu \right | }{(x-l)^{2}+s^{2}}$ \\  
  Laplace & $-1-\log \left(2 b_{p}\right)+ \frac{b^{2}}{\sigma^{2}}+log(\sqrt{2\pi}\sigma) $
+=======
+ $-\frac{\log \left(2 \pi \sigma_{q}^{2}\right)+1}{2} +\log{\pi s}+\frac{1}{\sigma\sqrt{2\pi}} \int_{-\infty}^{+\infty} e^{-\frac{1}{2}(\frac{x-\mu}{\sigma})^{2}}log(1+\frac{(x-l)^{2}}{s^{2}} )dx$ &
+$ -\frac{\log \left(2 \pi \sigma_{q}^{2}\right)+1}{2} +\log{2b}+\frac{2\sigma}{\sqrt{2 \pi} b} e^{-\frac{\left(u_{q}-u_{p}\right)^{2}}{2 \sigma^{2}}}+\frac{\left |u_{q}-u_{p}  \right | }{b} p\left(\left | \xi \right |  <\left|u_{q}-u_{p}\right|\right).\quad \xi \sim{N(0,\sigma)} $  &
+ Cauchy & $-\log (4 \pi s_{p})+ 
+ \log {\sigma\sqrt{2 \pi}}+\frac{(l-u)^{2}}{2 \sigma^{2}}  -s^{3} \int_{0}^{+\infty} \frac{y^{2}}{1+y^{2}} d y $ & 
+ $\log\frac{\left(s_{p}+s_{q}\right)^{2}+\left(l_{p}-l_{q}\right)^{2}}{4 s_{p} s_{q}}$ & 
+$-\log (4 \pi s_{p})+log2b+\int \frac{s}{\pi b} \frac{\left | x-\mu \right | }{(x-l)^{2}+s^{2}}$ \\  
+ Laplace & $-1-\log \left(2 b\right)+\frac{(\mu_{q}-\mu_{p})^{2}+2b^{2}}{2\sigma^{2}}+log(\sqrt{2\pi}\sigma) 
+ $
+>>>>>>> 3e0097520741b60e3e215caba61aed70f261f245
  & 
  $-\log (4 \pi s_{p})+log\pi+ \int log(\frac{s}{(x-l)^{2}+s^{2}} )\frac{e^{-\frac{\left | x-\mu \right | }{b} } }{2b} dx $ 
  & 
@@ -59,8 +73,11 @@ $-\log (4 \pi s_{p})+\frac{1}{\pi}log2b\arctan\frac{x-l}{s}  +\int \frac{s}{\pi 
 \end{tabular}
 \end{center}
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> 3e0097520741b60e3e215caba61aed70f261f245
 Links:
 \begin{itemize}
     \item Normal-Cauchy: https://math.stackexchange.com/questions/1098852/kullback-leibler-divergence-between-standard-gaussian-distribution-and-standard
@@ -94,6 +111,10 @@ Is the Derivation on Google?
 \end{center}
 
 \begin{center}
+<<<<<<< HEAD
+=======
+\begin{adjustbox}{angle=90}
+>>>>>>> 3e0097520741b60e3e215caba61aed70f261f245
 \begin{tabular}{ c | c c c}
  & HalfNormal & Gamma & LogNormal \\
  \hline
@@ -105,12 +126,20 @@ Is the Derivation on Google?
  $-k-\ln (\theta)-\ln (\Gamma(k))-(1-k) \psi(k) + \int_{0}^{+\infty } (\frac{\log\frac{\sqrt{2}}{\sigma{\sqrt{\pi}}} }{\Gamma (k)\theta^{k}} x^{k+1}e^{-\frac{x}{\theta}}+\frac{x^{k+1}}{2\sigma^{2}\Gamma (k)\theta^{k}}e^{-\frac{x}{\theta} })dx $
  & 
  $\left(k_{p}-k_{q}\right) \psi\left(k_{p}\right)-\log \Gamma\left(k_{p}\right)+\log \Gamma\left(k_{q}\right)+k_{q}\left(\log \theta_{q}-\log \theta_{p}\right)+k_{p}\frac{\theta_{p}-\theta_{q}}{\theta_{q}}$ & 
+<<<<<<< HEAD
 $\mathbf{k}-\log (\theta \Gamma(k))+(-1+k) \text { PolyGamma }(0, k)+ \frac{1}{2 \sigma^{2}}\left(\mu^{2}+\sigma^{2} \log (2 \pi)-2 \mu \log (\theta)+\log (\theta)^{2}+2 \sigma^{2} \log (\theta \sigma)+2\left(-\mu+\sigma^{2}+\log (\theta)\right) \text { PolyGamma }(0, k)+\text { PolyGamma }(0, k)^{2}+\text { PolyGamma }(1, k)\right)$ \\  
+=======
+\makecell{\tiny$\mathbf{k}-\log (\theta \Gamma(k))+(-1+k) \text { PolyGamma }(0, k) + $\\$ \tiny\frac{1}{2 \sigma^{2}}\left(\mu^{2}+\sigma^{2} \log (2 \pi)-2 \mu \log (\theta)+\log (\theta)^{2}+2 \sigma^{2} \log (\theta \sigma)+2\left(-\mu+\sigma^{2}+\log (\theta)\right) \text { PolyGamma }(0, k)+\text { PolyGamma }(0, k)^{2}+\text { PolyGamma }(1, k)\right)$} \\  
+>>>>>>> 3e0097520741b60e3e215caba61aed70f261f245
  LogNormal & $-\frac{1}{2}-\log (\sigma_{p} \sqrt{2 \pi})+-\mu_{p}+\frac{\log(\frac{\sqrt{2}}{\sigma_{p}} )e^{\frac{\sqrt{2}\mu_{p}}{\sigma_{p}} }}{(\sqrt{2}+\sigma_{p})(\sqrt{2\pi})}+\frac{e^{\frac{\sqrt2}{\sigma_{q}}}}{2\sqrt{2\pi}\sigma^{2}_{q}(\sigma_{q}-\sqrt{2})}$
  & $-\frac{1}{2}-\log (\sigma \sqrt{2 \pi})-\mu-\int_{0}^{+\infty } \frac{e^{-\frac{(\log{x}-\mu)^{2}}{2\theta^{2}} }}{x\sigma\sqrt{2\pi}} \log\frac{x^{k-1}}{\Gamma(k)\theta^{k}}dx+\frac{\int_{0}^{+\infty} x^{\frac{2-\sqrt{2\sigma}}{\sqrt2\sigma}e^{x} }dx }{(\sigma-\sqrt{2\pi})e^{\theta+\frac{2\mu}{\sqrt{2\sigma}}}}$
  & 
  $\frac{1}{2 \sigma_{q}^{2}}\left[\left(\mu_{p}-\mu_{q}\right)^{2}+\sigma_{p}^{2}-\sigma_{q}^{2}\right]+\ln \frac{\sigma_{q}}{\sigma_{p}}$
 \end{tabular}
+<<<<<<< HEAD
+=======
+\end{adjustbox}
+>>>>>>> 3e0097520741b60e3e215caba61aed70f261f245
 \end{center}
 
 
@@ -148,6 +177,23 @@ Is the Derivation on Google?
 
 
 
+\begin{center}
+\begin{tabular}{ c | c c c }
+ & Beta & logitnormal & Uniform \\
+ \hline
+ Beta & 
+ $log(\frac{B(\alpha_{q},\alpha_{q})}{B(\alpha_{p},\alpha_{p})})+(\alpha_{p}-\alpha_{q})\psi(\alpha_{p})+(\beta_{p}-\beta_{q})\psi(\beta_{p})+(\alpha_{q}-\alpha_{p}+\beta_{q}-\beta_{p})\psi(\alpha_{p}+\beta_{p})$
+ & $-log(B(\alpha_{p},\beta_{p}))-(\alpha_{p}-1)\psi(\alpha_{p})-(\beta_{p}-1)\psi(\beta_{p})+(\alpha_{p}+\beta_{p}-2)\psi(\alpha_{p}+\beta_{p})+\log\sigma\sqrt{2\pi}+\int_{0}^{1} \frac{x^{\alpha-1}(1-x)^{\beta-1}}{B(\alpha ,\beta)} (\frac{(logitx-\mu)^2}{2\sigma^{2}}+\log{x(1-x)} )$
+ & $-log(B(\alpha_{p},\beta_{p}))-(\alpha_{p}-1)\psi(\alpha_{p})-(\beta_{p}-1)\psi(\beta_{p})+(\alpha_{p}+\beta_{p}-2)\psi(\alpha_{p}+\beta_{p})+\int_{(0,1)\cap(a,b) } \frac{x^{\alpha-1}(1-x)^{\beta-1}}{B(\alpha-\beta)}\log(b-a) dx$\\
+ logitnormal & N & Y & N \\  
+ Uniform & $-log(b-a)+\frac{1}{b-a}
+\int_{(0,1)\cap(a,b) }\log{\frac{x^{\alpha-1}(1-x)^{\beta-1}}{B(\alpha-\beta)}} dx$
+ & $ -log(b-a)+\int_{(0,1)\cap(a,b) }\frac{1}{b-a}\log{\frac{1}{\sigma \sqrt{2 \pi}} e^{-\frac{(\operatorname{logit}(x)-\mu)^{2}}{2 \sigma^{2}}} \frac{1}{x(1-x)}}dx$
+ & $\frac{log(b_{q}-a_{q})(\min \{b_{p},b_{q}\}-\min \{a_{p},a_{q}\}+a_{p}-b_{p})}{b_{q}-a_{q}}$
+\end{tabular}
+\end{center}
+
+
 \section{Unbounded}
 
 \subsection{Normal Reference}
@@ -172,6 +218,7 @@ $$ \begin{aligned} \mathrm{KL}\left(\mathrm{N}\left(\mu_{q}, \sigma_{q}^{2}\righ
 \subsubsection{Normal-Laplace}
 
 $$ \begin{aligned} \text { CrossEntropy }&=
+<<<<<<< HEAD
 -\int_{-\infty}^{\infty} p_{ \mu,\sigma}(x) \log q_{b,\mu(x)} \mathrm{d} x \\
 &=log2b
 \end{aligned}
@@ -180,6 +227,20 @@ $$
 \subsubsection{Normal-Cauchy}
 $$ \begin{aligned}  \text { CrossEntropy }&=-\int_{-\infty}^{\infty} p_{\mu,\sigma}(x) \log q_{s,l(x)} \mathrm{d} x \\
 &=\log \sqrt{\frac{\pi}{2}}+ \frac{1}{2} (\sigma_{p}+\mu_{p}^2) \\
+=======
+-\int_{-\infty}^{\infty} q_{ \mu,\sigma}(x) \log p_{b,\mu(x)} \mathrm{d} x \\
+&=\log{2b}+\frac{2\sigma}{\sqrt{2 \pi} b} e^{-\frac{\left(u_{q}-u_{p}\right)^{2}}{2 \sigma^{2}}}+\frac{\left |u_{q}-u_{p}  \right | }{b} p\left(\left | \xi \right |  <\left|u_{q}-u_{p}\right|\right).\quad \xi \sim{N(0,\sigma)}
+\end{aligned}
+$$
+$$ \begin{aligned} \mathrm{KL}\left(\mathrm{N}\left(\mu_{q}, \sigma_{q}^{2}\right) \| \mathrm{Laplace}\left(b_{p}, \sigma_{p}\right)\right)&=-\frac{\log \left(2 \pi \sigma_{q}^{2}\right)+1}{2} +\log{2b}+\frac{2\sigma}{\sqrt{2 \pi} b} e^{-\frac{\left(u_{q}-u_{p}\right)^{2}}{2 \sigma^{2}}}+\frac{\left |u_{q}-u_{p}  \right | }{b} p\left(\left | \xi \right |  <\left|u_{q}-u_{p}\right|\right).\quad \xi \sim{N(0,\sigma)}
+\end{aligned} $$
+\subsubsection{Normal-Cauchy}
+$$ \begin{aligned}  \text { CrossEntropy }&=-\int_{-\infty}^{\infty} q_{\mu,\sigma}(x) \log p_{s,l(x)} \mathrm{d} x \\
+&=\log{\pi s}+\frac{1}{\sigma\sqrt{2\pi}} \int_{-\infty}^{+\infty} e^{-\frac{1}{2}(\frac{x-\mu}{\sigma})^{2}}log(1+\frac{(x-l)^{2}}{s^{2}} )dx \\
+\end{aligned}
+$$
+$$ \begin{aligned} \mathrm{KL}\left(\mathrm{N}\left(\mu_{q}, \sigma_{q}^{2}\right) \| \mathrm{Cauchy}\left(s, l\right)\right)&=-\frac{\log \left(2 \pi \sigma_{q}^{2}\right)+1}{2} +\log{\pi s}+\frac{1}{\sigma\sqrt{2\pi}} \int_{-\infty}^{+\infty} e^{-\frac{1}{2}(\frac{x-\mu}{\sigma})^{2}}log(1+\frac{(x-l)^{2}}{s^{2}} )dx
+>>>>>>> 3e0097520741b60e3e215caba61aed70f261f245
 \end{aligned}
 $$
 
@@ -212,16 +273,26 @@ Links:
 \subsubsection{Cauchy-Normal}
 $$ \begin{aligned} \text { CrossEntropy }&=
 -\int_{-\infty}^{\infty} p_{l_{p}, s_{p}}(x) \log q_{\mu, \sigma(x)} \mathrm{d} x \\
+<<<<<<< HEAD
 &=log\sigma\sqrt{2\pi}\frac{1}{\pi}\arctan\frac{x-l}{s_{p}}  -\frac{1}{2} \int  \frac{s_{p} }{\pi}\frac{1}{(x-l)^{2}+s_{p}^{2}}(\frac{x-\mu}{\sigma} )^{2} dx
+=======
+&=\log {\sigma\sqrt{2 \pi}}+\frac{(l-u)^{2}}{2 \sigma^{2}}  -s^{3} \int_{0}^{+\infty} \frac{y^{2}}{1+y^{2}} d y
+>>>>>>> 3e0097520741b60e3e215caba61aed70f261f245
 \end{aligned} $$
 
 \subsubsection{Cauchy-Laplace}
 $$
 \begin{aligned} \text { CrossEntropy }&=
 -\int_{-\infty}^{\infty} p_{l_{p}, s_{p}}(x) \log q_{b, \mu(x)} \mathrm{d} x \\
+<<<<<<< HEAD
 &=\frac{1}{\pi}log2b\arctan\frac{x-l}{s}  +\int \frac{s}{\pi b} \frac{\left | x-\mu \right | }{(x-l)^{2}+s^{2}}dx 
 \end{aligned}$$
 
+=======
+&=log2b  +\int \frac{s}{\pi b} \frac{\left | x-\mu \right | }{(x-l)^{2}+s^{2}}dx 
+\end{aligned}$$
+*integral diverges
+>>>>>>> 3e0097520741b60e3e215caba61aed70f261f245
 
 \subsection{Laplace Reference}
 
@@ -236,12 +307,12 @@ $$ \begin{aligned} \text { Entropy }&=-\int_{-\infty}^{\infty} p(x) \log p(x) d 
 \noindent \textbf{Cross-Entropy:}
 $$ \begin{aligned} \text { CrossEntropy }
 \quad &=-\int_{-\infty}^{\infty} p(x) \log q(x) d x \\
-\quad &=\int_{-\infty}^{\infty} \frac{\left|x-\mu_{q}\right|}{2 b_{p} b_{q}} \exp \left(-\frac{\left|x-\mu_{p}\right|}{b_{p}}\right) d x+\log \left(2 b_{q}\right)\\&=\frac{b_{p} \exp \left(-\frac{\left|\mu_{p}-\mu_{q}\right|}{b_{p}}\right)+\left|\mu_{p}-\mu_{q}\right|}{b_{q}}+\log \left(2 b_{q}\right)
+\quad &=\int_{-\infty}^{\infty} \frac{\left|x-\mu_{q}\right|}{2 b_{p} b_{q}} \exp \left(-\frac{\left|x-\mu_{p}\right|}{b_{p}}\right) d x+\log \left(2 b_{q}\right)\\&=e^{\left(-\frac{\left|\mu_{p}-\mu_{q}\right|}{b_{p}}+\log{\frac{b_{q}}{b_{p}}}\right)} +\frac{ \left|\mu_{p}-\mu_{q}\right|}{b_{q}}+\log \left(2 b_{q}\right)
 \end{aligned}
  $$
 \noindent \textbf{KL:}
 
-$$ \begin{aligned}\mathrm{KL}\left(\mathrm{Laplace}\left(\mu_{p}, \sigma_{p}^{2}\right) \| \mathrm{Laplace}\left(\mu_{q}, \sigma_{q}^{2}\right)\right)&=-\text { Entropy }+\text{ CrossEntropy }\\&=-1-\log \left(2 b_{p}\right)+\frac{b_{p} \exp \left(-\frac{\left|\mu_{p}-\mu_{q}\right|}{b_{p}}\right)+\left|\mu_{p}-\mu_{q}\right|}{b_{q}}+\log \left(2 b_{q}\right)\\&=\frac{b_{p} \exp \left(-\frac{\left|\mu_{p}-\mu_{q}\right|}{b_{p}}\right)+\left|\mu_{p}-\mu_{q}\right|}{b_{q}}+\log \frac{b_{q}}{b_{p}}-1\\
+$$ \begin{aligned}\mathrm{KL}\left(\mathrm{Laplace}\left(\mu_{p}, \sigma_{p}^{2}\right) \| \mathrm{Laplace}\left(\mu_{q}, \sigma_{q}^{2}\right)\right)&=-\text { Entropy }+\text{ CrossEntropy }\\&=-1-\log \left(2 b_{p}\right)+\frac{b_{p} \exp \left(-\frac{\left|\mu_{p}-\mu_{q}\right|}{b_{p}}\right)+\left|\mu_{p}-\mu_{q}\right|}{b_{q}}+\log \left(2 b_{q}\right)\\&=e^{\left(-\frac{\left|\mu_{p}-\mu_{q}\right|}{b_{p}}+\log{\frac{b_{q}}{b_{p}}}\right)} +\frac{ \left|\mu_{p}-\mu_{q}\right|}{b_{q}}+\log \frac{b_{q}}{b_{p}}-1\\
 \end{aligned}
 $$
 Links:
@@ -252,6 +323,7 @@ Links:
 
 \subsubsection{Laplace-Normal}
 $$ \begin{aligned} \text { CrossEntropy }&=
+<<<<<<< HEAD
 -\int_{-\infty}^{\infty} p_{b,\mu}(x) \log q_{\mu, \sigma(x)} \mathrm{d} x \\
 &=\frac{b^{2}}{\sigma^{2}}+log(\sqrt{2\pi}\sigma) 
 \end{aligned}
@@ -260,6 +332,23 @@ $$ \begin{aligned} \text { CrossEntropy }&=
 $$ \begin{aligned} \text { CrossEntropy }&=
 -\int_{-\infty}^{\infty} p_{b,\mu}(x) \log q_{s, la(x)} \mathrm{d} x \\
 &=log\pi+ \int log(\frac{s}{(x-l)^{2}+s^{2}} )\frac{e^{-\frac{\left | x-\mu \right | }{b} } }{2b} dx \\
+=======
+-\int_{-\infty}^{\infty} q_{b,\mu}(x) \log p_{\mu, \sigma(x)} \mathrm{d} x \\
+&=\frac{(\mu_{q}-\mu_{p})^{2}+2b^{2}}{2\sigma^{2}}+log(\sqrt{2\pi}\sigma) 
+\end{aligned}
+ $$
+ 
+$$ \begin{aligned} \mathrm{KL}\left(\mathrm{Laplace}\left(\mu_{q}, b\right) \| \mathrm{N}\left(\mu_{p}, \sigma\right)\right)&= -1-\log \left(2 b\right)+\frac{(\mu_{q}-\mu_{p})^{2}+2b^{2}}{2\sigma^{2}}+log(\sqrt{2\pi}\sigma) 
+ \end{aligned}
+ $$
+ 
+\subsubsection{Laplace-Cauchy}
+$$ \begin{aligned} \text { CrossEntropy }&=
+-\int_{-\infty}^{\infty} q_{b,\mu}(x) \log p_{s, la(x)} \mathrm{d} x \\
+&=log\pi+\int log(\frac{s}{(x-l)^{2}+s^{2}} )\frac{e^{-\frac{\left | x-\mu \right | }{b} } }{2b} dx \\
+&=log\pi+ \log{s}- \frac{1}{2b}\int_{-\infty}^{\infty}\log{[{(x-l)^{2}+s^{2}}]}
+e^{-\frac{\left | x-\mu \right |}{b} dx
+>>>>>>> 3e0097520741b60e3e215caba61aed70f261f245
 \end{aligned}
  $$
  
@@ -388,8 +477,20 @@ log(\frac{B(\alpha_{q},\alpha_{q})}{B(\alpha_{p},\alpha_{p})})+(\alpha_{p}-\alph
 https://en.wikipedia.org/wiki/Beta\_distribution
 
 \subsubsection{Beta-Logitnormal}
+<<<<<<< HEAD
 \subsubsection{Beta-Uniform}
+=======
 
+$$ \begin{aligned} \text {CrossEntropy }\left(\alpha, \beta ; \mu, \sigma \right)&=
+\log\sigma\sqrt{2\pi}+\int_{0}^{1} \frac{x^{\alpha-1}(1-x)^{\beta-1}}{B(\alpha ,\beta)} (\frac{(logitx-\mu)^2}{2\sigma^{2}}+\log{x(1-x)} )dx
+\end{aligned} $$
+>>>>>>> 3e0097520741b60e3e215caba61aed70f261f245
+
+
+\subsubsection{Beta-Uniform}
+$$ \begin{aligned} \text {CrossEntropy }\left(\alpha, \beta ; a, b\right)&=
+\int_{(0,1)\cap(a,b) } \frac{x^{\alpha-1}(1-x)^{\beta-1}}{B(\alpha-\beta)}\log(b-a) dx
+\end{aligned} $$
 
 \subsection{Logitnormal Reference}
 
@@ -410,7 +511,18 @@ $$ \begin{aligned} \text { CrossEntropy }&=
 
 
 \subsubsection{Logitnormal-Beta}
+<<<<<<< HEAD
 \subsubsection{Logitnormal-Uniform}
+=======
+$$ \begin{aligned} \text {CrossEntropy }\left(\sigma,\mu ;\alpha, \beta \right)&=
+-\int_{0}^{1}\frac{1}{\sigma \sqrt{2 \pi}} e^{-\frac{(\operatorname{logit}(x)-\mu)^{2}}{2 \sigma^{2}}} \frac{1}{x(1-x)} \log\frac{x^{\alpha-1}(1-x)^{\beta-1}}{B(\alpha,\beta)}dx
+\end{aligned} $$
+
+\subsubsection{Logitnormal-Uniform}
+$$ \begin{aligned} \text {CrossEntropy }\left(\sigma, \mu;a,b \right)&=
+\int_{(0,1)\cap(a,b) }\frac{1}{\sigma \sqrt{2 \pi}} e^{-\frac{(\operatorname{logit}(x)-\mu)^{2}}{2 \sigma^{2}}} \frac{1}{x(1-x)}\log{(b-a)}dx
+\end{aligned} $$
+>>>>>>> 3e0097520741b60e3e215caba61aed70f261f245
 
 
 \subsection{Uniform Reference}
@@ -433,6 +545,19 @@ $$ \begin{aligned}
 \end{aligned} $$
 
 \subsubsection{Uniform-Beta}
+<<<<<<< HEAD
 \subsubsection{Uniform-Logitnormal}
+=======
+$$ \begin{aligned} \text {CrossEntropy }\left( a, b;\alpha, \beta \right)&=\frac{1}{b-a}
+\int_{(0,1)\cap(a,b) }\log{\frac{x^{\alpha-1}(1-x)^{\beta-1}}{B(\alpha-\beta)}} dx
+\end{aligned} $$
+
+
+\subsubsection{Uniform-Logitnormal}
+$$ \begin{aligned} \text {CrossEntropy }\left(a,b;\sigma, \mu \right)&=
+\int_{(0,1)\cap(a,b) }\frac{1}{b-a}\log{\frac{1}{\sigma \sqrt{2 \pi}} e^{-\frac{(\operatorname{logit}(x)-\mu)^{2}}{2 \sigma^{2}}} \frac{1}{x(1-x)}}dx
+\end{aligned} $$
+
+>>>>>>> 3e0097520741b60e3e215caba61aed70f261f245
 
 \end{document}

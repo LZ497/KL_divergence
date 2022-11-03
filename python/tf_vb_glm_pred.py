@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import sys
 import os
-from django.test import TestCase
+#from django.test import TestCase
 from six.moves import urllib
 from tqdm import tqdm
 import matplotlib.pyplot as plt; plt.style.use('ggplot')
@@ -68,7 +68,7 @@ def log_lik(y, floor, county, ps):
     # Combine.
     linear_response = fixed_effect + random_effect
     # For some reason, this tutorial fixed the variance of the response to 1.
-    obs_lik = tfd.Normal(loc=linear_response, scale= ps['obs_lik'], name='likelihood')
+    obs_lik = tfd.Normal(loc=linear_response, scale= ps['obs_lik'][:,tf.newaxis], name='likelihood')
     obs_ll = tf.reduce_sum(obs_lik.log_prob(y), axis = 1)
     ret = obs_ll 
     return ret
@@ -137,7 +137,7 @@ def optimization(features,labels):
             ps = {}
             for v in vd.keys():
                 ps[v] = vd[v].sample(M)
-            ps['obs_lik'] = vd['obs_lik'].sample(1)
+            #ps['obs_lik'] = vd['obs_lik'].sample(1)
             ## Form a Monte-Carlo estimate of the likelihood.
             ll_draws = log_lik(labels, features['floor'], features['county_code'], ps)
             ll_mc = tf.reduce_mean(ll_draws)
@@ -161,6 +161,8 @@ def optimization(features,labels):
                 costs[it] = cost.numpy()
             else:
                 pass
+    print("costs:")
+    print(costs)
 
 def predict(floor, county, vd):
     random_effect = tf.gather(vd['county_prior'], county, axis=-1)
@@ -168,7 +170,7 @@ def predict(floor, county, vd):
     fixed_effect = vd['intercept'][:,tf.newaxis] + vd['floor_weight'][:,tf.newaxis] * floor[tf.newaxis,:]
     linear_response = fixed_effect + random_effect
     # For some reason, this tutorial fixed the variance of the response to 1.
-    obs_lik = tfd.Normal(loc=linear_response, scale= vd['obs_lik'], name='likelihood')
+    obs_lik = tfd.Normal(loc=linear_response, scale= vd['obs_lik'][:,tf.newaxis], name='likelihood')
     preds = obs_lik.sample(1000)
     return preds
 
@@ -176,6 +178,7 @@ def get_rmse(state,priors_dis,vd_dis ):
     ds = tfds.load('radon', split='train')
     radon_data = tfds.as_dataframe(ds)
     radon_data.rename(lambda s: s[9:] if s.startswith('feat') else s, axis=1, inplace=True)
+    global df
     df = load_and_preprocess_radon_dataset(radon_data,state)
 
     #shuffle and split
@@ -217,16 +220,27 @@ def get_rmse(state,priors_dis,vd_dis ):
         prediction = predict(test_features['floor'], test_features['county_code'], samp)
         ##prediction shape (obs_lik.sample_number,m,len(labels))
         prediction = tf.reduce_mean(prediction, axis = 1)
-        prediction = tf.reduce_mean(prediction, axis = 0)
-        mse = np.square(np.subtract(test_labels,prediction)).mean() 
+
+        # Evaluate point estimate
+        pred_point = tf.reduce_mean(prediction, axis = 0)
+        mse = np.square(np.subtract(test_labels,pred_point)).mean() 
         rmse = math.sqrt(mse)
         rmses.append(rmse)
-    return sum(rmses)/len(rmses)
+
+        # Evaluate confidence interval coverage
+        conf_level = 0.95 #Nominal level
+        lb = np.quantile(prediction, (1-conf_level)/2, axis = 0)
+        ub = np.quantile(prediction, conf_level+(1-conf_level)/2, axis = 0)
+        covered = np.logical_and((lb <= test_labels), (ub >= test_labels))
+        obs_coverage = np.mean(covered)
+
+   return sum(rmses)/len(rmses), obs_coverage
 
 def main():
     #states = ['AZ','IN','MA','MN','MO','ND','PA','R5']
     states = ['AZ','MA','MN','ND','PA','R5']
     Normal_Normal_rmse = [get_rmse(state, priors_dis='Normal' ,vd_dis= 'Normal') for state in states]
+    #Normal_Normal_rmse = [get_rmse(state, priors_dis_ub='Normal' , vd_dis_ub= 'Normal',priors_dis_hb='LogNormal' , vd_dis_hb= 'LogNormal' ) for state in states]
     Laplace_Normal_rmse = [get_rmse(state, priors_dis='Laplace' ,vd_dis= 'Normal') for state in states]
     Laplace_Laplace_rmse = [get_rmse(state, priors_dis='Laplace' ,vd_dis= 'Laplace') for state in states]
     Normal_Laplace_rmse = [get_rmse(state, priors_dis='Normal' ,vd_dis= 'Laplace') for state in states]

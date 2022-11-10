@@ -143,7 +143,7 @@ def optimization(features,labels , methods):
     #### Main optimization loop.
     opt = tf.optimizers.Adam(learning_rate=1e-2)
     M = 3 # Monte Carlo sample size
-    iters = 3
+    iters = 50
     costs = np.zeros(iters)
     for it in tqdm(range(iters)):
         # Compute stochastic gradient estimate.
@@ -289,10 +289,10 @@ def main(methods):
     
 if __name__ == "__main__":
     main('Analytic')
-    ## Normal_Normal [1.77168336 0.6766805 ]
-    ## Laplace_Normal [1.81702558 0.73415348]
-    ## Laplace_Laplace [2.19840665 0.88227967]
-    ## Normal_Laplace [2.11436831 0.80541125]
+    ## Normal_Normal [1.61670902 0.85707389]
+    ## Laplace_Normal [1.66832714 0.92831952]
+    ## Laplace_Laplace [1.81323501 0.54589325]
+    ## Normal_Laplace [1.8231979  0.59325365]
     #main('Numerical')
     ## Normal_Normal [1.81004676 0.77254388]
     ## Laplace_Normal [1.81842293 0.78807695]

@@ -39,18 +39,23 @@ def Normal(a,b,name=None):
 def Laplace(a,b,name=None):
     return tfd.Laplace(loc=a, scale=b, name=name)
 
+def LogNormal(a,b,name=None):
+    return tfd.LogNormal(loc=a,scale=b, name=name)
+
 ### Define the priors
 def define_priors(f):
     global priors
     priors = {}
 # This is the random effects variance
 # This would match the tutorial:
-#priors['county_scale'] = tfd.HalfNormal(scale=1., name='scale_prior')
     priors['county_scale'] = f(0,1,'scale_prior')
     # But I want to use lognormal
     priors['intercept'] = f(0,1, name='intercept')
     # This is the regression coefficient
     priors['floor_weight'] = f(0,1, name='floor_weight')
+    
+def define_priors_hb(f):
+    priors['county_scale'] = f(0,1, name='scale_prior')
     priors['obs_lik'] = f(0,1, name='obs_lik')
 
 ### Define the likelihood
@@ -116,10 +121,13 @@ def define_train_vars():
 def define_vd(f):
     global vd
     vd = {}
-    vd['county_scale'] = f(a= vp['county_scale_loc'], b= vp['county_scale_scale'],name='county_scale')
     vd['intercept'] = f(a=vp['intercept_loc'], b=vp['intercept_scale'],name='intercept')
     vd['floor_weight'] = f(a=vp['floor_weight_loc'], b=vp['floor_weight_scale'],name = 'floor_weight')
     vd['county_prior'] = f(a=vp['county_prior_loc'], b=vp['county_prior_scale'],name='county_prior')
+    
+def define_vd_hb(f):
+    global vd
+    vd['county_scale'] = f(a= vp['county_scale_loc'], b= vp['county_scale_scale'],name='county_scale')
     vd['obs_lik'] = f(a=vp['obs_lik_loc'],b=vp['obs_lik_scale'],name='obs_lik')
 
 def optimization(features,labels):
@@ -137,7 +145,7 @@ def optimization(features,labels):
             ps = {}
             for v in vd.keys():
                 ps[v] = vd[v].sample(M)
-            #ps['obs_lik'] = vd['obs_lik'].sample(1)
+            
             ## Form a Monte-Carlo estimate of the likelihood.
             ll_draws = log_lik(labels, features['floor'], features['county_code'], ps)
             ll_mc = tf.reduce_mean(ll_draws)
@@ -174,7 +182,7 @@ def predict(floor, county, vd):
     preds = obs_lik.sample(1000)
     return preds
 
-def get_rmse(state,priors_dis,vd_dis ):
+def get_rmse(state,priors_dis_ub,vd_dis_ub, priors_dis_hb='LogNormal' ,vd_dis_hb='LogNormal' ):
     ds = tfds.load('radon', split='train')
     radon_data = tfds.as_dataframe(ds)
     radon_data.rename(lambda s: s[9:] if s.startswith('feat') else s, axis=1, inplace=True)
@@ -192,18 +200,22 @@ def get_rmse(state,priors_dis,vd_dis ):
     features = df[['county_code', 'floor']].astype(int)
     labels = df[['log_radon']].astype(np.float32).values.flatten()
 
-    if priors_dis=='Normal':
+    if priors_dis_ub=='Normal':
         define_priors(Normal)
-    if priors_dis=='Laplace':
+    if priors_dis_ub=='Laplace':
         define_priors(Laplace)
+    if priors_dis_hb =='LogNormal':
+        define_priors_hb(LogNormal)
 
     define_vp()
     define_train_vars()
 
-    if vd_dis=='Normal':
+    if vd_dis_ub=='Normal':
         define_vd(Normal)
-    if vd_dis=='Laplace':
+    if vd_dis_ub=='Laplace':
         define_vd(Laplace)
+    if vd_dis_hb=='LogNormal':
+        define_vd_hb(LogNormal)
         
     optimization(features,labels)
 
@@ -211,12 +223,12 @@ def get_rmse(state,priors_dis,vd_dis ):
     test_labels= test_df[['log_radon']].astype(np.float32).values.flatten()
 
     rmses = []
-    m = 1
+    m = 3
     for i in range(1000):
         samp = {}
         for v in vd.keys():
             samp[v] = vd[v].sample(m)
-        samp['obs_lik'] = vd['obs_lik'].sample(1)
+
         prediction = predict(test_features['floor'], test_features['county_code'], samp)
         ##prediction shape (obs_lik.sample_number,m,len(labels))
         prediction = tf.reduce_mean(prediction, axis = 1)
@@ -234,25 +246,38 @@ def get_rmse(state,priors_dis,vd_dis ):
         covered = np.logical_and((lb <= test_labels), (ub >= test_labels))
         obs_coverage = np.mean(covered)
 
-   return sum(rmses)/len(rmses), obs_coverage
+    return sum(rmses)/len(rmses), obs_coverage
 
 def main():
-    #states = ['AZ','IN','MA','MN','MO','ND','PA','R5']
-    states = ['AZ','MA','MN','ND','PA','R5']
-    Normal_Normal_rmse = [get_rmse(state, priors_dis='Normal' ,vd_dis= 'Normal') for state in states]
-    #Normal_Normal_rmse = [get_rmse(state, priors_dis_ub='Normal' , vd_dis_ub= 'Normal',priors_dis_hb='LogNormal' , vd_dis_hb= 'LogNormal' ) for state in states]
-    Laplace_Normal_rmse = [get_rmse(state, priors_dis='Laplace' ,vd_dis= 'Normal') for state in states]
-    Laplace_Laplace_rmse = [get_rmse(state, priors_dis='Laplace' ,vd_dis= 'Laplace') for state in states]
-    Normal_Laplace_rmse = [get_rmse(state, priors_dis='Normal' ,vd_dis= 'Laplace') for state in states]
-    res = pd.DataFrame({'states':states,'Normal_Normal_rmse':Normal_Normal_rmse,
-                        'Laplace_Normal_rmse':Laplace_Normal_rmse,
-                        'Laplace_Laplace_rmse':Laplace_Laplace_rmse,
-                        'Normal_Laplace_rmse':Normal_Laplace_rmse})
-    overall = ['oervall']
-    overall_ = res.mean(axis=0).tolist()
-    overall.extend(overall_)
-    res.loc[6] = overall
-    print(res)
+    states = ['AZ','IN','MA','MN','MO','ND','PA','R5']
+    Normal_Normal, Laplace_Normal, Laplace_Laplace,Normal_Laplace =[],[],[],[]
+    for state in states:
+        try:
+            Normal_Normal.append(get_rmse(state, priors_dis_ub='Normal' ,vd_dis_ub= 'Normal') )
+        except:
+            print('Normal_Normal_Failed:', state)
+        try:
+            Laplace_Normal.append(get_rmse(state, priors_dis_ub='Laplace' ,vd_dis_ub= 'Normal'))
+        except:
+            print('Laplace_Normal_Failed:', state)
+        try:
+            Laplace_Laplace.append( get_rmse(state, priors_dis_ub='Laplace' ,vd_dis_ub= 'Laplace'))
+        except:
+            print('Laplace_Laplace_Failed:', state)
+        try:
+            Normal_Laplace.append(get_rmse(state, priors_dis_ub='Normal' ,vd_dis_ub= 'Laplace'))
+        except:
+            print('Normal_Laplace_Failed:', state)
+
+    print('Normal_Normal', np.array(Normal_Normal).mean(axis = 0))
+    print('Laplace_Normal', np.array(Laplace_Normal).mean(axis = 0))
+    print('Laplace_Laplace',np.array(Laplace_Laplace).mean(axis = 0))
+    print('Normal_Laplace',np.array(Normal_Laplace).mean(axis = 0))
+    
+    ## Normal_Normal [1.77168336 0.6766805 ]
+    ## Laplace_Normal [1.81702558 0.73415348]
+    ## Laplace_Laplace [2.19840665 0.88227967]
+    ## Normal_Laplace [2.11436831 0.80541125]
 
 if __name__ == "__main__":
     main()

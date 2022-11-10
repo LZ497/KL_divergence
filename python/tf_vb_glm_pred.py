@@ -130,12 +130,20 @@ def define_vd_hb(f):
     vd['county_scale'] = f(a= vp['county_scale_loc'], b= vp['county_scale_scale'],name='county_scale')
     vd['obs_lik'] = f(a=vp['obs_lik_loc'],b=vp['obs_lik_scale'],name='obs_lik')
 
-def optimization(features,labels):
+def Numerical(distq, distp):
+    MC= []
+    for i in range(1000):
+        M = 1000
+        xsamp  = distq.sample(M)
+        MC.append(tf.reduce_mean(distq.log_prob(xsamp) - distp.log_prob(xsamp)).numpy())
+    return np.array(MC).mean()
+
+def optimization(features,labels , methods):
     global vd
     #### Main optimization loop.
     opt = tf.optimizers.Adam(learning_rate=1e-2)
     M = 3 # Monte Carlo sample size
-    iters = 30
+    iters = 3
     costs = np.zeros(iters)
     for it in tqdm(range(iters)):
         # Compute stochastic gradient estimate.
@@ -152,8 +160,13 @@ def optimization(features,labels):
 
             ## Compute closed-form Variational-Prior KL divergence
             klvp = 0.
-            for v in priors.keys():
-                klvp += vd[v].kl_divergence(priors[v])
+            if  methods == 'Analytic':
+                for v in priors.keys():
+                    klvp += vd[v].kl_divergence(priors[v])
+            
+            if methods == 'Numerical':
+                for v in priors.keys():
+                    klvp += Numerical(vd[v], priors[v])
 
             ## Variational-Prior KL divergence for county_prior is hierarchical; need to estimate with Monte Carlo.
             klvp += tf.reduce_mean(re_vp(ps))
@@ -182,7 +195,7 @@ def predict(floor, county, vd):
     preds = obs_lik.sample(1000)
     return preds
 
-def get_rmse(state,priors_dis_ub,vd_dis_ub, priors_dis_hb='LogNormal' ,vd_dis_hb='LogNormal' ):
+def get_rmse(state,priors_dis_ub,vd_dis_ub, priors_dis_hb='LogNormal' ,vd_dis_hb='LogNormal', methods='Analytic'):
     ds = tfds.load('radon', split='train')
     radon_data = tfds.as_dataframe(ds)
     radon_data.rename(lambda s: s[9:] if s.startswith('feat') else s, axis=1, inplace=True)
@@ -217,7 +230,7 @@ def get_rmse(state,priors_dis_ub,vd_dis_ub, priors_dis_hb='LogNormal' ,vd_dis_hb
     if vd_dis_hb=='LogNormal':
         define_vd_hb(LogNormal)
         
-    optimization(features,labels)
+    optimization(features,labels,methods)
 
     test_features = test_df[['county_code', 'floor']].astype(int)
     test_labels= test_df[['log_radon']].astype(np.float32).values.flatten()
@@ -248,24 +261,24 @@ def get_rmse(state,priors_dis_ub,vd_dis_ub, priors_dis_hb='LogNormal' ,vd_dis_hb
 
     return sum(rmses)/len(rmses), obs_coverage
 
-def main():
+def main(methods):
     states = ['AZ','IN','MA','MN','MO','ND','PA','R5']
     Normal_Normal, Laplace_Normal, Laplace_Laplace,Normal_Laplace =[],[],[],[]
     for state in states:
         try:
-            Normal_Normal.append(get_rmse(state, priors_dis_ub='Normal' ,vd_dis_ub= 'Normal') )
+            Normal_Normal.append(get_rmse(state, priors_dis_ub='Normal' ,vd_dis_ub= 'Normal' , methods =methods ) )
         except:
             print('Normal_Normal_Failed:', state)
         try:
-            Laplace_Normal.append(get_rmse(state, priors_dis_ub='Laplace' ,vd_dis_ub= 'Normal'))
+            Laplace_Normal.append(get_rmse(state, priors_dis_ub='Laplace' ,vd_dis_ub= 'Normal', methods =methods))
         except:
             print('Laplace_Normal_Failed:', state)
         try:
-            Laplace_Laplace.append( get_rmse(state, priors_dis_ub='Laplace' ,vd_dis_ub= 'Laplace'))
+            Laplace_Laplace.append( get_rmse(state, priors_dis_ub='Laplace' ,vd_dis_ub= 'Laplace', methods =methods))
         except:
             print('Laplace_Laplace_Failed:', state)
         try:
-            Normal_Laplace.append(get_rmse(state, priors_dis_ub='Normal' ,vd_dis_ub= 'Laplace'))
+            Normal_Laplace.append(get_rmse(state, priors_dis_ub='Normal' ,vd_dis_ub= 'Laplace', methods =methods))
         except:
             print('Normal_Laplace_Failed:', state)
 
@@ -274,10 +287,14 @@ def main():
     print('Laplace_Laplace',np.array(Laplace_Laplace).mean(axis = 0))
     print('Normal_Laplace',np.array(Normal_Laplace).mean(axis = 0))
     
+if __name__ == "__main__":
+    main('Analytic')
     ## Normal_Normal [1.77168336 0.6766805 ]
     ## Laplace_Normal [1.81702558 0.73415348]
     ## Laplace_Laplace [2.19840665 0.88227967]
     ## Normal_Laplace [2.11436831 0.80541125]
-
-if __name__ == "__main__":
-    main()
+    #main('Numerical')
+    ## Normal_Normal [1.81004676 0.77254388]
+    ## Laplace_Normal [1.81842293 0.78807695]
+    ## Laplace_Laplace [2.0874171  0.71705861]
+    ## Normal_Laplace [2.25884796 0.44301045]

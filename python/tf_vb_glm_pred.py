@@ -134,10 +134,10 @@ def define_vd_hb(f):
 
 def Numerical(distq, distp):
     MC= []
-    for i in range(1000):
-        M = 1000
-        xsamp  = distq.sample(M)
-        MC.append(tf.reduce_mean(distq.log_prob(xsamp) - distp.log_prob(xsamp)).numpy())
+    #for i in range(1000):
+    M = 1000
+    xsamp  = distq.sample(M)
+    MC.append(tf.reduce_mean(distq.log_prob(xsamp) - distp.log_prob(xsamp)).numpy())
     return np.array(MC).mean()
 
 def optimization(features, labels , methods):
@@ -204,7 +204,9 @@ def get_rmse(state,priors_dis_ub,vd_dis_ub, priors_dis_hb='LogNormal' ,vd_dis_hb
 
     # only 1 member, which is too few to split into two datasets
     onlyone = list(df.county_code.value_counts()[df.county_code.value_counts().values<2].index)
-    df = df[~df.county_code.isin(onlyone)]
+    df.loc[df.county_code.isin(onlyone),'county_code']= None
+    df.county_code = pd.factorize(df.county_code)[0]
+    df = df[df.county_code!=-1]
     train, test_df  = train_test_split(df, test_size=0.33, random_state=42, stratify=df['county_code'])
     # Split your dataset 
     df = train
@@ -263,10 +265,10 @@ def get_rmse(state,priors_dis_ub,vd_dis_ub, priors_dis_hb='LogNormal' ,vd_dis_hb
 
 def plot(state, type, costs_Analytic,costs_Numerical):
     fig = plt.figure()
-    plt.plot(costs_Analytic,label='costs_Analytic')
-    plt.plot(costs_Numerical,label='costs_Numerical')
+    plt.plot(np.log(costs_Analytic),label='costs_Analytical')
+    plt.plot(np.log(costs_Numerical),label='costs_Numerical')
     plt.xlabel("Opt Iteration")
-    plt.ylabel("MC KL Estimate cost")
+    plt.ylabel("MC KL Estimate cost (log)")
     plt.title("Cost")
     plt.tight_layout()
     plt.legend()
@@ -275,7 +277,6 @@ def plot(state, type, costs_Analytic,costs_Numerical):
 
 def main():
     states = ['AZ','IN','MA','MN','MO','ND','PA','R5']
-    #ormal_Normal, Laplace_Normal, Laplace_Laplace,Normal_Laplace =[],[],[],[]
     costs_Analytic, costs_Numerical = [],[]
     ana, num  = [],[]
     rmses_ana, rmses_num=[],[]
@@ -296,12 +297,13 @@ def main():
     print(rmses_num)
 if __name__ == "__main__":
     main()
-    ## Normal_Normal [1.61670902 0.85707389]
-    ## Laplace_Normal [1.66832714 0.92831952]
-    ## Laplace_Laplace [1.81323501 0.54589325]
-    ## Normal_Laplace [1.8231979  0.59325365]
-    #main('Numerical')
-    ## Normal_Normal [1.81004676 0.77254388]
-    ## Laplace_Normal [1.81842293 0.78807695]
-    ## Laplace_Laplace [2.0874171  0.71705861]
-    ## Normal_Laplace [2.25884796 0.44301045]
+    ### Analytical:
+    # Normal_Normal [1.18895699, 0.00566967, 0.92590185]
+    # Normal_Laplace [1.29223942, 0.00797647, 0.91786626]
+    # Laplace_Normal [1.24202765, 0.00677024, 0.928264  ]
+    # Laplace_Laplace [1.28016992, 0.00759832, 0.90858622]
+    ### Numerical:
+    # Normal_Normal [1.20296809, 0.0056556 , 0.96932259]
+    # Normal_Laplace [1.28308009, 0.00780365, 0.92496111]
+    # Laplace_Normal [1.25467479, 0.00707951, 0.92703341]
+    # Laplace_Laplace [1.29759791, 0.0080749 , 0.91771574]

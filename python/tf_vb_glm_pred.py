@@ -15,6 +15,8 @@ import tensorflow_probability as tfp
 tfd = tfp.distributions
 tfb = tfp.bijectors
 import math
+from scipy.stats import sem
+from sklearn.model_selection import train_test_split
 
 def load_and_preprocess_radon_dataset(radon_data, state):
   df = radon_data[radon_data.state==state.encode()].copy()
@@ -138,12 +140,12 @@ def Numerical(distq, distp):
         MC.append(tf.reduce_mean(distq.log_prob(xsamp) - distp.log_prob(xsamp)).numpy())
     return np.array(MC).mean()
 
-def optimization(features,labels , methods):
-    global vd
+def optimization(features, labels , methods):
+    global vd, costs
     #### Main optimization loop.
     opt = tf.optimizers.Adam(learning_rate=1e-2)
     M = 3 # Monte Carlo sample size
-    iters = 50
+    iters = 500
     costs = np.zeros(iters)
     for it in tqdm(range(iters)):
         # Compute stochastic gradient estimate.
@@ -182,8 +184,6 @@ def optimization(features,labels , methods):
                 costs[it] = cost.numpy()
             else:
                 pass
-    print("costs:")
-    print(costs)
 
 def predict(floor, county, vd):
     random_effect = tf.gather(vd['county_prior'], county, axis=-1)
@@ -202,12 +202,12 @@ def get_rmse(state,priors_dis_ub,vd_dis_ub, priors_dis_hb='LogNormal' ,vd_dis_hb
     global df
     df = load_and_preprocess_radon_dataset(radon_data,state)
 
-    #shuffle and split
-    shuffle_df = df.sample(frac=1)
-    train_size = int(0.7 * len(shuffle_df))
+    # only 1 member, which is too few to split into two datasets
+    onlyone = list(df.county_code.value_counts()[df.county_code.value_counts().values<2].index)
+    df = df[~df.county_code.isin(onlyone)]
+    train, test_df  = train_test_split(df, test_size=0.33, random_state=42, stratify=df['county_code'])
     # Split your dataset 
-    df = shuffle_df[:train_size]
-    test_df = shuffle_df[train_size:]
+    df = train
 
     # get features and labels
     features = df[['county_code', 'floor']].astype(int)
@@ -259,36 +259,43 @@ def get_rmse(state,priors_dis_ub,vd_dis_ub, priors_dis_hb='LogNormal' ,vd_dis_hb
         covered = np.logical_and((lb <= test_labels), (ub >= test_labels))
         obs_coverage = np.mean(covered)
 
-    return sum(rmses)/len(rmses), obs_coverage
+    return sum(rmses)/len(rmses), sem(rmses), obs_coverage, costs
 
-def main(methods):
+def plot(state, type, costs_Analytic,costs_Numerical):
+    fig = plt.figure()
+    plt.plot(costs_Analytic,label='costs_Analytic')
+    plt.plot(costs_Numerical,label='costs_Numerical')
+    plt.xlabel("Opt Iteration")
+    plt.ylabel("MC KL Estimate cost")
+    plt.title("Cost")
+    plt.tight_layout()
+    plt.legend()
+    plt.savefig(type+state)
+    plt.close()
+
+def main():
     states = ['AZ','IN','MA','MN','MO','ND','PA','R5']
-    Normal_Normal, Laplace_Normal, Laplace_Laplace,Normal_Laplace =[],[],[],[]
-    for state in states:
-        try:
-            Normal_Normal.append(get_rmse(state, priors_dis_ub='Normal' ,vd_dis_ub= 'Normal' , methods =methods ) )
-        except:
-            print('Normal_Normal_Failed:', state)
-        try:
-            Laplace_Normal.append(get_rmse(state, priors_dis_ub='Laplace' ,vd_dis_ub= 'Normal', methods =methods))
-        except:
-            print('Laplace_Normal_Failed:', state)
-        try:
-            Laplace_Laplace.append( get_rmse(state, priors_dis_ub='Laplace' ,vd_dis_ub= 'Laplace', methods =methods))
-        except:
-            print('Laplace_Laplace_Failed:', state)
-        try:
-            Normal_Laplace.append(get_rmse(state, priors_dis_ub='Normal' ,vd_dis_ub= 'Laplace', methods =methods))
-        except:
-            print('Normal_Laplace_Failed:', state)
-
-    print('Normal_Normal', np.array(Normal_Normal).mean(axis = 0))
-    print('Laplace_Normal', np.array(Laplace_Normal).mean(axis = 0))
-    print('Laplace_Laplace',np.array(Laplace_Laplace).mean(axis = 0))
-    print('Normal_Laplace',np.array(Normal_Laplace).mean(axis = 0))
-    
+    #ormal_Normal, Laplace_Normal, Laplace_Laplace,Normal_Laplace =[],[],[],[]
+    costs_Analytic, costs_Numerical = [],[]
+    ana, num  = [],[]
+    rmses_ana, rmses_num=[],[]
+    for p in ['Normal','Laplace']:
+        for v in ['Normal','Laplace']:
+            for state in states:
+                res = []
+                for method in ['Analytic','Numerical']:
+                    res.append(get_rmse(state, priors_dis_ub=p ,vd_dis_ub= v , methods =method))
+                ana.append(res[0][0:3])
+                num.append(res[1][0:3])
+                costs_Analytic = res[0][3]
+                costs_Numerical = res[1][3]
+                plot(state, p+v,costs_Analytic, costs_Numerical)
+            rmses_ana.append(np.array(ana).mean(axis = 0))
+            rmses_num.append(np.array(num).mean(axis = 0))
+    print(rmses_ana)
+    print(rmses_num)
 if __name__ == "__main__":
-    main('Analytic')
+    main()
     ## Normal_Normal [1.61670902 0.85707389]
     ## Laplace_Normal [1.66832714 0.92831952]
     ## Laplace_Laplace [1.81323501 0.54589325]

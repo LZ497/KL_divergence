@@ -41,8 +41,17 @@ def Normal(a,b,name=None):
 def Laplace(a,b,name=None):
     return tfd.Laplace(loc=a, scale=b, name=name)
 
+def Cauchy(a,b,name=None):
+    return tfd.Cauchy(loc=a,scale=b, name=name)
+
 def LogNormal(a,b,name=None):
     return tfd.LogNormal(loc=a,scale=b, name=name)
+
+def HalfNormal(a,b,name=None):
+    return tfd.HalfNormal(scale=b, name=name)
+
+def Gamma(a,b,name=None):
+    return tfd.Gamma(concentration=a, rate=b, name=name)  
 
 ### Define the priors
 def define_priors(f):
@@ -128,7 +137,6 @@ def define_vd(f):
     vd['county_prior'] = f(a=vp['county_prior_loc'], b=vp['county_prior_scale'],name='county_prior')
     
 def define_vd_hb(f):
-    global vd
     vd['county_scale'] = f(a= vp['county_scale_loc'], b= vp['county_scale_scale'],name='county_scale')
     vd['obs_lik'] = f(a=vp['obs_lik_loc'],b=vp['obs_lik_scale'],name='obs_lik')
 
@@ -219,8 +227,14 @@ def get_rmse(state,priors_dis_ub,vd_dis_ub, priors_dis_hb='LogNormal' ,vd_dis_hb
         define_priors(Normal)
     if priors_dis_ub=='Laplace':
         define_priors(Laplace)
+    if priors_dis_ub=='Cauchy':
+        define_priors(Cauchy)
     if priors_dis_hb =='LogNormal':
         define_priors_hb(LogNormal)
+    if priors_dis_hb =='HalfNormal':
+        define_priors_hb(HalfNormal)
+    if priors_dis_hb =='Gamma':
+        define_priors_hb(Gamma)
 
     define_vp()
     define_train_vars()
@@ -229,8 +243,14 @@ def get_rmse(state,priors_dis_ub,vd_dis_ub, priors_dis_hb='LogNormal' ,vd_dis_hb
         define_vd(Normal)
     if vd_dis_ub=='Laplace':
         define_vd(Laplace)
+    if vd_dis_ub=='Cauchy':
+        define_vd(Cauchy)
     if vd_dis_hb=='LogNormal':
         define_vd_hb(LogNormal)
+    if vd_dis_hb =='HalfNormal':
+        define_vd_hb(HalfNormal)
+    if vd_dis_hb =='Gamma':
+        define_vd_hb(Gamma)
         
     optimization(features,labels,methods)
 
@@ -280,21 +300,23 @@ def main():
     costs_Analytic, costs_Numerical = [],[]
     ana, num  = [],[]
     rmses_ana, rmses_num=[],[]
-    for p in ['Normal','Laplace']:
-        for v in ['Normal','Laplace']:
-            for state in states:
-                res = []
-                for method in ['Analytic','Numerical']:
-                    res.append(get_rmse(state, priors_dis_ub=p ,vd_dis_ub= v , methods =method))
-                ana.append(res[0][0:3])
-                num.append(res[1][0:3])
-                costs_Analytic = res[0][3]
-                costs_Numerical = res[1][3]
-                plot(state, p+v,costs_Analytic, costs_Numerical)
-            rmses_ana.append(np.array(ana).mean(axis = 0))
-            rmses_num.append(np.array(num).mean(axis = 0))
-    print(rmses_ana)
-    print(rmses_num)
+    for p in ['Normal','Laplace','Cauchy']:
+        for v in ['Normal','Laplace','Cauchy']:
+            for p_hb in ['LogNormal', 'HalfNormal', 'Gamma']:
+                for v_hb in ['LogNormal', 'HalfNormal', 'Gamma']:
+                    for state in states:
+                        res = []
+                        for method in ['Numerical']:
+                                res.append(get_rmse(state, priors_dis_ub=p ,vd_dis_ub= v , priors_dis_hb= p_hb ,vd_dis_hb= v_hb, methods =method))
+                        ana.append(res[0][0:3])
+                        num.append(res[1][0:3])
+                        costs_Analytic = res[0][3]
+                        costs_Numerical = res[1][3]
+                        plot(state, p+v,costs_Analytic, costs_Numerical)
+                    rmses_ana.append(np.array(ana).mean(axis = 0))
+                    rmses_num.append(np.array(num).mean(axis = 0))
+            print(rmses_ana)
+            print(rmses_num)
 if __name__ == "__main__":
     main()
     ### Analytical:
